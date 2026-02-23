@@ -1,6 +1,6 @@
 # 🏎️ Gear Lab Pro: Formula Student Drivetrain Optimizer
 
-![Formula Student Dashboard](https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&q=80&w=1200)
+
 
 **Gear Lab Pro** is a high-performance optimization platform engineered specifically for **Formula Student** competition. It solves the complex engineering challenge of configuring a drivetrain that maximizes acceleration and event efficiency while adhering to strict traction limits and drivability requirements.
 
