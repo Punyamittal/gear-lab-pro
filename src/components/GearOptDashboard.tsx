@@ -1,5 +1,12 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import { Zap, Brain, Flag, Gauge, Timer, Flame, Volume2, VolumeX } from 'lucide-react';
+import { Zap, Brain, Flag, Gauge, Timer, Flame, Volume2, VolumeX, Menu, Activity, Settings as SettingsIcon, ChevronRight, Globe } from 'lucide-react';
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart,
 } from 'recharts';
@@ -245,6 +252,201 @@ const GearOptDashboard = () => {
     setDataset({ ...dataset, gearbox: { ...dataset.gearbox, gears: newGears } });
   };
 
+  const SidebarLeftContent = useMemo(() => (
+    <>
+      <Section title="VEHICLE PARAMETERS">
+        <SliderRow label="Mass (kg)" value={dataset.vehicle.mass_kg} min={200} max={400} step={1}
+          onChange={(v) => setDataset({ ...dataset, vehicle: { ...dataset.vehicle, mass_kg: v } })} />
+        <SliderRow label="Wheelbase (m)" value={dataset.vehicle.wheelbase_m} min={1.4} max={1.8} step={0.01}
+          onChange={(v) => setDataset({ ...dataset, vehicle: { ...dataset.vehicle, wheelbase_m: v } })} />
+        <SliderRow label="CG Height (m)" value={dataset.vehicle.cg_height_m} min={0.2} max={0.4} step={0.01}
+          onChange={(v) => setDataset({ ...dataset, vehicle: { ...dataset.vehicle, cg_height_m: v } })} />
+        <SliderRow label="Weight Dist (F)" value={dataset.vehicle.weight_distribution_front} min={0.3} max={0.6} step={0.01}
+          onChange={(v) => setDataset({ ...dataset, vehicle: { ...dataset.vehicle, weight_distribution_front: v } })} />
+      </Section>
+
+      <Section title="DRIVETRAIN RATIOS">
+        {dataset.gearbox.gears.map((r, i) => (
+          <SliderRow
+            key={i}
+            label={`Gear ${i + 1}`}
+            value={r}
+            min={dataset.gearbox.constraints.min_ratio}
+            max={dataset.gearbox.constraints.max_ratio}
+            step={0.01}
+            onChange={(v) => updateGear(i, v)}
+          />
+        ))}
+        <SliderRow label="Final Drive" value={dataset.gearbox.final_drive_ratio} min={2.5} max={5.0} step={0.05}
+          onChange={(v) => setDataset({ ...dataset, gearbox: { ...dataset.gearbox, final_drive_ratio: v } })} />
+      </Section>
+
+      <Section title="ENVIRONMENT & TIRES">
+        <SliderRow label="Tire Friction (μ)" value={dataset.tire.mu_longitudinal} min={0.5} max={2.0} step={0.01}
+          onChange={(v) => setDataset({ ...dataset, tire: { ...dataset.tire, mu_longitudinal: v, mu_lateral: v * 0.95 } })} />
+        <SliderRow label="Drag Coeff" value={dataset.aero.drag_coefficient} min={0.5} max={1.5} step={0.05}
+          onChange={(v) => setDataset({ ...dataset, aero: { ...dataset.aero, drag_coefficient: v } })} />
+        <div className="flex-1 bg-background/20 rounded-xl p-3 border border-panel/50">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Torque Map</span>
+            <Globe size={10} className="text-primary/40" />
+          </div>
+          <div className="flex items-end gap-[2px] h-12">
+            {[0.4, 0.6, 0.8, 1, 0.9, 0.7].map((scale, i) => (
+              <div key={i}
+                className="flex-1 bg-primary/20 hover:bg-primary/40 transition-all rounded-t-sm cursor-pointer border-x border-t border-primary/10"
+                style={{ height: `${scale * 50}%` }}
+                onClick={() => {
+                  const newCurve = dataset.engine.torque_curve.map(p => ({ ...p, torque_nm: p.torque_nm * scale }));
+                  setDataset({ ...dataset, engine: { ...dataset.engine, torque_curve: newCurve } });
+                  addLog(`TORQUE: Powerband scaled by ${scale}x`);
+                }}
+              />
+            ))}
+          </div>
+          <p className="text-[7px] font-mono text-muted-foreground uppercase text-center mt-1">RPM Range Profile Selection</p>
+        </div>
+      </Section>
+
+      <Section title="ADVANCED CONTROLS">
+        <div className="flex justify-around items-center py-4 bg-background/20 rounded-xl border border-panel/50">
+          <div className="flex flex-col items-center gap-3">
+            <span className="text-[9px] font-mono text-muted-foreground uppercase tracking-widest text-center">Launch<br />Control</span>
+            <LeverSwitch
+              checked={useLaunchControl}
+              onCheckedChange={setUseLaunchControl}
+            />
+          </div>
+          <div className="w-[1px] h-12 bg-panel" />
+          <div className="flex flex-col items-center gap-3">
+            <span className="text-[9px] font-mono text-muted-foreground uppercase tracking-widest text-center">Active<br />Aero</span>
+            <LeverSwitch
+              checked={activeAero}
+              onCheckedChange={setActiveAero}
+            />
+          </div>
+        </div>
+      </Section>
+
+      <Section title="SOLVER RACE">
+        <SolverRace
+          onComplete={(winner, gears) => {
+            setDataset(prev => ({ ...prev, gearbox: { ...prev.gearbox, gears } }));
+            addLog(`RACE: ${winner} won the Solver Race and solution applied.`);
+            saveSession({
+              accelTime: 0, // Calculated on next sim
+              skidpadTime: 0,
+              autocrossTime: 0,
+              gears,
+              peakVelocity: 0,
+              peakG: 0,
+              mass: dataset.vehicle.mass_kg,
+              grip: dataset.tire.mu_longitudinal,
+              fitness: null,
+              optimizer: winner.toLowerCase() as any
+            });
+          }}
+          runQuantumFn={() => {
+            const steps: AnnealingStep[] = [];
+            quantumAnnealingOptimize(dataset, 100, (s) => steps.push(s));
+            const best = steps.reduce((a, b) => a.fitness > b.fitness ? a : b);
+            return { fitness: best.fitness * 100, gearRatios: best.gearRatios };
+          }}
+          runSwarmFn={() => {
+            const result = swarmOptimize(dataset, 30, 50);
+            return { fitness: result.fitness, gearRatios: result.gearRatios };
+          }}
+          runGeneticFn={() => {
+            const result = geneticOptimize(dataset, 40, 50);
+            return { fitness: result.fitness, gearRatios: result.gearRatios };
+          }}
+        />
+      </Section>
+
+      <Section title="SOLVER CONTROL">
+        <div className="grid grid-cols-2 gap-3">
+          <PremiumButton onClick={runSim}>Sim</PremiumButton>
+          <PremiumButton onClick={runClassical} disabled={isRunning}>Classical</PremiumButton>
+          <PremiumButton onClick={runQuantum} disabled={isRunning}>Quantum</PremiumButton>
+          <PremiumButton onClick={runSwarm} disabled={isRunning}>Swarm</PremiumButton>
+          <div className="col-span-2">
+            <PremiumButton onClick={runGenetic} disabled={isRunning} className="w-full">DNA Evolution</PremiumButton>
+          </div>
+        </div>
+      </Section>
+    </>
+  ), [dataset, isRunning, useLaunchControl, activeAero, runSim, runClassical, runQuantum, runSwarm, runGenetic, addLog]);
+
+  const SidebarRightContent = useMemo(() => (
+    <>
+      {/* Checkered flag accent */}
+      <div className="absolute top-0 left-0 right-0 checkered-strip lg:block hidden" />
+      <Section title="EVENT TELEMETRY">
+        <MetricRow label="Accel (75m)" value={eventResults.accel > 0 ? `${eventResults.accel.toFixed(3)}s` : '—'} color="cyan" />
+        <MetricRow label="Skidpad (2 Laps)" value={eventResults.skidpad > 0 ? `${eventResults.skidpad.toFixed(3)}s` : '—'} color="green" />
+        <MetricRow label="Autocross" value={eventResults.autocross > 0 ? `${eventResults.autocross.toFixed(2)}s` : '—'} color="orange" />
+        <div className="h-[1px] bg-panel my-2" />
+        <MetricRow label="Course Velocity" value={simData.length > 0 ? `${(simData[simData.length - 1].velocity * 3.6).toFixed(1)} km/h` : '—'} color="cyan" />
+        <MetricRow label="Peak Long G" value={simData.length > 0 ? `${Math.max(...simData.map(d => d.acceleration_long / 9.81)).toFixed(2)}G` : '—'} color="orange" />
+        <MetricRow label="Total Downforce" value={simData.length > 0 ? `${simData[simData.length - 1].downforce.toFixed(0)} N` : '—'} color="purple" />
+      </Section>
+
+      <SessionHistoryPanel />
+
+      <Section title="GEARBOX MAPPING">
+        <div className="space-y-2">
+          {dataset.gearbox.gears.map((r, i) => (
+            <div key={i} className="flex justify-between items-center text-[10px] font-mono bg-background/50 p-2 rounded border border-panel group/gear hover:border-red-900/40 transition-colors">
+              <span className="text-muted-foreground flex items-center gap-1.5">
+                <span className="inline-block w-3 h-3 text-[7px] font-black rounded bg-red-950 text-red-400 flex items-center justify-center">{i + 1}</span>
+                GEAR {i + 1}
+              </span>
+              <span className="neon-text-cyan font-bold">{r.toFixed(2)}</span>
+              <span className="text-[9px] text-muted-foreground opacity-50">{(r * dataset.gearbox.final_drive_ratio).toFixed(2)} TOTAL</span>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {optimizedResult && (
+        <div className="bg-red-950/15 border border-primary/20 rounded-lg p-3 space-y-3">
+          <h3 className="font-display text-[10px] tracking-widest text-primary uppercase flex items-center gap-2"><Flame size={12} /> Optimized Setup</h3>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="text-center bg-background/50 rounded py-2">
+              <div className="text-[9px] text-muted-foreground">TIME</div>
+              <div className="text-sm font-bold neon-text-green">{optimizedResult.accelTime.toFixed(3)}s</div>
+            </div>
+            <div className="text-center bg-background/50 rounded py-2">
+              <div className="text-[9px] text-muted-foreground">FITNESS</div>
+              <div className="text-sm font-bold neon-text-cyan">{optimizedResult.fitness.toFixed(1)}</div>
+            </div>
+          </div>
+          <div className="flex flex-col gap-3">
+            <PremiumButton
+              onClick={() => {
+                setDataset({ ...dataset, gearbox: { ...dataset.gearbox, gears: optimizedResult.gearRatios } });
+                addLog('System converged to optimized gearset.');
+              }}
+              className="w-full"
+            >
+              Apply Solution
+            </PremiumButton>
+            <PremiumButton
+              onClick={() => {
+                setBaselineSimData(simData);
+                setShowGhost(true);
+                addLog('BASELINE: Reference sim locked.');
+              }}
+              className="w-full opacity-80"
+            >
+              Lock Baseline
+            </PremiumButton>
+          </div>
+        </div>
+      )}
+    </>
+  ), [eventResults, simData, dataset, optimizedResult, showGhost, addLog]);
+
   const tractiveCurves = generateTractiveCurves(dataset);
   const gearCharts = [1, 2, 3, 4, 5, 6].map(g => tractiveCurves.filter(p => p.gear === g));
 
@@ -260,231 +462,162 @@ const GearOptDashboard = () => {
   }));
 
   return (
-    <div className="flex flex-col h-screen bg-background overflow-hidden font-sans select-none relative">
-      <div className="ambient-drift" />
-      <header className="h-16 flex items-center justify-between px-6 border-b border-panel bg-panel/40 backdrop-blur-xl relative sweep-line z-10 kerb-stripe-bottom">
-        <div className="flex items-center gap-4">
-          {/* F1 Start Lights */}
-          <div className="start-lights mr-1">
-            {[0, 1, 2, 3, 4].map(i => (
-              <div key={i} className={`start-light-bulb ${isRunning ? 'active' : (replayProgress >= 100 ? 'go' : '')}`} style={{ animationDelay: `${i * 0.2}s` }} />
-            ))}
-          </div>
-          <div className="flex flex-col">
-            <h1 className="font-display text-base tracking-[0.4em] uppercase neon-text-cyan leading-none font-black">
-              GearOpt <span className="text-f1-gold">F1</span>
-            </h1>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-[9px] text-muted-foreground font-mono tracking-widest opacity-60 uppercase">Race Engineering • Pit Wall Command</span>
-              {voiceSupported && (
-                <button
-                  onClick={toggleListening}
-                  className={`flex items-center gap-1.5 px-2 py-0.5 rounded border text-[8px] font-mono uppercase transition-all ${isListening ? 'bg-red-500/10 border-red-500/30 text-red-400 animate-pulse' : 'bg-panel border-panel-border text-muted-foreground hover:text-primary'
-                    }`}
-                >
-                  <div className={`w-1.5 h-1.5 rounded-full ${isListening ? 'bg-red-500' : 'bg-muted-foreground'}`} />
-                  {isListening ? 'Listening' : 'Voice Command'}
+    <div className="flex flex-col h-screen bg-[#050505] text-foreground overflow-hidden font-sans selection:bg-red-500/30">
+      {/* BACKGROUND TEXTURE */}
+      <div className="fixed inset-0 pointer-events-none opacity-20" style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+        backgroundSize: '250px 250px'
+      }} />
+
+      {/* HEADER — Mobile Optimized */}
+      <header className="h-16 lg:h-20 border-b border-panel bg-panel/95 backdrop-blur-md flex items-center justify-between px-4 lg:px-8 shrink-0 z-50 relative">
+        <div className="flex items-center gap-2 lg:gap-6">
+          {/* Mobile Menu Trigger */}
+          <div className="lg:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <button className="p-2 hover:bg-white/5 rounded-lg border border-white/10 text-muted-foreground mr-1">
+                  <Menu size={20} />
                 </button>
-              )}
-              {lastCommand && isListening && (
-                <span className="text-[9px] font-mono text-primary animate-in fade-in slide-in-from-left-2 duration-300 italic opacity-80">
-                  "{lastCommand}"
-                </span>
-              )}
+              </SheetTrigger>
+              <SheetContent side="left" className="w-80 bg-panel border-r border-panel p-0 pt-10">
+                <div className="h-full overflow-y-auto p-4 custom-scrollbar racing-stripe flex flex-col gap-6">
+                  <h2 className="font-display text-primary text-xs tracking-widest uppercase mb-2 border-b border-white/10 pb-2">Vehicle Configuration</h2>
+                  {SidebarLeftContent}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 lg:w-10 lg:h-10 bg-primary rounded shadow-[0_0_20px_rgba(239,68,68,0.3)] flex items-center justify-center rotate-3 hover:rotate-0 transition-transform duration-300">
+              <Zap className="text-white" size={20} fill="white" />
+            </div>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                <span className="font-display text-base lg:text-xl tracking-[0.2em] font-black italic">GEAR_LAB</span>
+                <span className="bg-primary px-1.5 py-0.5 rounded text-[8px] lg:text-[10px] text-white font-black tracking-widest hidden sm:block">PRO_V2</span>
+              </div>
             </div>
           </div>
-          <div className="h-6 w-[1px] bg-panel mx-2" />
-          <span className="text-muted-foreground text-[10px] font-mono border border-red-900/40 px-2 py-0.5 rounded-md bg-red-950/20">
-            <Flag size={10} className="inline mr-1 text-red-500" />FIA-SPEC • R2.6
-          </span>
-          {replayProgress > 0 && replayProgress < 100 && (
-            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/30 drs-active">
-              <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
-              <span className="text-[9px] font-mono font-bold text-green-400 uppercase tracking-widest">DRS Active</span>
+
+          <div className="h-8 w-[1px] bg-panel mx-2 hidden sm:block" />
+
+          <div className="hidden lg:flex items-center gap-4">
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                {voiceSupported && (
+                  <button
+                    onClick={toggleListening}
+                    className={`flex items-center gap-1.5 px-2 py-0.5 rounded border text-[8px] font-mono uppercase transition-all ${isListening ? 'bg-red-500/10 border-red-500/30 text-red-400 animate-pulse' : 'bg-panel border-panel-border text-muted-foreground hover:text-primary'
+                      }`}
+                  >
+                    <div className={`w-1.5 h-1.5 rounded-full ${isListening ? 'bg-red-500' : 'bg-muted-foreground'}`} />
+                    {isListening ? 'Listening' : 'Voice Command'}
+                  </button>
+                )}
+                {lastCommand && isListening && (
+                  <span className="text-[9px] font-mono text-primary animate-in fade-in slide-in-from-left-2 duration-300 italic opacity-80">
+                    "{lastCommand}"
+                  </span>
+                )}
+              </div>
             </div>
-          )}
+            <div className="h-6 w-[1px] bg-panel mx-2" />
+            <span className="text-muted-foreground text-[10px] font-mono border border-red-900/40 px-2 py-0.5 rounded-md bg-red-950/20">
+              <Flag size={10} className="inline mr-1 text-red-500" />FIA-SPEC • R2.6
+            </span>
+            {replayProgress > 0 && replayProgress < 100 && (
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/30 drs-active">
+                <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
+                <span className="text-[9px] font-mono font-bold text-green-400 uppercase tracking-widest">DRS Active</span>
+              </div>
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex flex-col items-end mr-2">
-            <span className="text-[9px] font-mono text-muted-foreground uppercase opacity-40">Pit Radio Latency</span>
-            <span className="text-[10px] font-mono text-f1-gold font-bold">0.24ms</span>
-          </div>
-          <div className="flex flex-col items-end mr-4">
-            <span className="text-[9px] font-mono text-muted-foreground uppercase opacity-40">Flag Status</span>
-            <span className="text-[10px] font-mono text-green-400 font-bold">🟢 GREEN</span>
+
+        <div className="flex items-center gap-2 lg:gap-3">
+          <div className="hidden md:flex flex-col items-end mr-2">
+            <span className="text-[7px] lg:text-[9px] font-mono text-muted-foreground uppercase opacity-40">Pit Radio Latency</span>
+            <span className="text-[8px] lg:text-[10px] font-mono text-f1-gold font-bold">0.24ms</span>
           </div>
 
           <button
             onClick={() => setIsMuted(!isMuted)}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all duration-300 ${isMuted
+            className={`flex items-center gap-2 px-2 lg:px-3 py-1 lg:py-1.5 rounded-lg border transition-all duration-300 ${isMuted
               ? 'bg-red-500/10 border-red-500/30 text-red-500'
               : 'bg-panel border-panel-border text-f1-gold shadow-[0_0_10px_rgba(234,179,8,0.1)]'
               }`}
             title={isMuted ? "Unmute Pit Wall" : "Mute Pit Wall"}
           >
-            {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
-            <span className="text-[9px] font-mono font-bold uppercase tracking-wider">
+            {isMuted ? <VolumeX size={14} /> : <Volume2 size={12} className="lg:w-3.5 lg:h-3.5" />}
+            <span className="text-[8px] lg:text-[9px] font-mono font-bold uppercase tracking-wider hidden xs:block">
               {isMuted ? 'Muted' : 'Audio On'}
             </span>
           </button>
+
           <PremiumButton
             onClick={runDemo}
             disabled={isRunning}
-            className="min-w-[200px]"
+            className="min-w-[120px] lg:min-w-[200px] text-[10px] lg:text-xs py-1.5 lg:py-2"
           >
-            ▶ Lights Out & Away We Go
+            ▶ <span className="hidden sm:inline">Lights Out & Away We Go</span>
+            <span className="sm:hidden">Start Run</span>
           </PremiumButton>
+
+          {/* Mobile Telemetry Trigger */}
+          <div className="lg:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <button className="p-2 hover:bg-white/5 rounded-lg border border-white/10 text-muted-foreground ml-1">
+                  <Activity size={20} />
+                </button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-80 bg-panel border-l border-panel p-0 pt-10">
+                <div className="h-full overflow-y-auto p-4 custom-scrollbar flex flex-col gap-6">
+                  <h2 className="font-display text-primary text-xs tracking-widest uppercase mb-2 border-b border-white/10 pb-2">Race Telemetry</h2>
+                  {SidebarRightContent}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </header>
 
-      <div className="flex flex-1 overflow-hidden z-10">
-        {/* LEFT — Inputs */}
-        <aside className="w-80 border-r border-panel bg-panel overflow-y-auto p-4 flex flex-col gap-4 relative z-20 racing-stripe custom-scrollbar">
-          <Section title="VEHICLE PARAMETERS">
-            <SliderRow label="Mass (kg)" value={dataset.vehicle.mass_kg} min={200} max={400} step={1}
-              onChange={(v) => setDataset({ ...dataset, vehicle: { ...dataset.vehicle, mass_kg: v } })} />
-            <SliderRow label="Wheelbase (m)" value={dataset.vehicle.wheelbase_m} min={1.4} max={1.8} step={0.01}
-              onChange={(v) => setDataset({ ...dataset, vehicle: { ...dataset.vehicle, wheelbase_m: v } })} />
-            <SliderRow label="CG Height (m)" value={dataset.vehicle.cg_height_m} min={0.2} max={0.4} step={0.01}
-              onChange={(v) => setDataset({ ...dataset, vehicle: { ...dataset.vehicle, cg_height_m: v } })} />
-            <SliderRow label="Weight Dist (F)" value={dataset.vehicle.weight_distribution_front} min={0.3} max={0.6} step={0.01}
-              onChange={(v) => setDataset({ ...dataset, vehicle: { ...dataset.vehicle, weight_distribution_front: v } })} />
-          </Section>
-
-          <Section title="DRIVETRAIN RATIOS">
-            {dataset.gearbox.gears.map((r, i) => (
-              <SliderRow
-                key={i}
-                label={`Gear ${i + 1}`}
-                value={r}
-                min={dataset.gearbox.constraints.min_ratio}
-                max={dataset.gearbox.constraints.max_ratio}
-                step={0.01}
-                onChange={(v) => updateGear(i, v)}
-              />
-            ))}
-            <SliderRow label="Final Drive" value={dataset.gearbox.final_drive_ratio} min={2.5} max={5.0} step={0.05}
-              onChange={(v) => setDataset({ ...dataset, gearbox: { ...dataset.gearbox, final_drive_ratio: v } })} />
-          </Section>
-
-          <Section title="ENVIRONMENT & TIRES">
-            <SliderRow label="Grip (μ)" value={dataset.tire.mu_longitudinal} min={0.8} max={2.2} step={0.05}
-              onChange={(v) => setDataset({ ...dataset, tire: { ...dataset.tire, mu_longitudinal: v } })} />
-            <SliderRow label="Drag Coeff" value={dataset.aero.drag_coefficient} min={0.5} max={1.5} step={0.05}
-              onChange={(v) => setDataset({ ...dataset, aero: { ...dataset.aero, drag_coefficient: v } })} />
-          </Section>
-
-          <Section title="TORQUE CURVE SCULPTOR">
-            <div className="flex gap-1 items-end h-16 px-2 bg-background/40 rounded border border-panel/50 group/torque">
-              {[0.8, 0.9, 1.0, 1.1, 1.2].map((scale, i) => (
-                <div key={i}
-                  className="flex-1 bg-primary/20 hover:bg-primary/40 transition-all rounded-t-sm cursor-pointer border-x border-t border-primary/10"
-                  style={{ height: `${scale * 50}%` }}
-                  onClick={() => {
-                    const newCurve = dataset.engine.torque_curve.map(p => ({ ...p, torque_nm: p.torque_nm * scale }));
-                    setDataset({ ...dataset, engine: { ...dataset.engine, torque_curve: newCurve } });
-                    addLog(`TORQUE: Powerband scaled by ${scale}x`);
-                  }}
-                />
-              ))}
-            </div>
-            <p className="text-[7px] font-mono text-muted-foreground uppercase text-center mt-1">RPM Range Profile Selection</p>
-          </Section>
-
-          <Section title="ADVANCED CONTROLS">
-            <div className="flex justify-around items-center py-4 bg-background/20 rounded-xl border border-panel/50">
-              <div className="flex flex-col items-center gap-3">
-                <span className="text-[9px] font-mono text-muted-foreground uppercase tracking-widest text-center">Launch<br />Control</span>
-                <LeverSwitch
-                  checked={useLaunchControl}
-                  onCheckedChange={setUseLaunchControl}
-                />
-              </div>
-              <div className="w-[1px] h-12 bg-panel" />
-              <div className="flex flex-col items-center gap-3">
-                <span className="text-[9px] font-mono text-muted-foreground uppercase tracking-widest text-center">Active<br />Aero</span>
-                <LeverSwitch
-                  checked={activeAero}
-                  onCheckedChange={setActiveAero}
-                />
-              </div>
-            </div>
-          </Section>
-
-          <Section title="SOLVER RACE">
-            <SolverRace
-              onComplete={(winner, gears) => {
-                setDataset(prev => ({ ...prev, gearbox: { ...prev.gearbox, gears } }));
-                addLog(`RACE: ${winner} won the Solver Race and solution applied.`);
-                saveSession({
-                  accelTime: 0, // Calculated on next sim
-                  skidpadTime: 0,
-                  autocrossTime: 0,
-                  gears,
-                  peakVelocity: 0,
-                  peakG: 0,
-                  mass: dataset.vehicle.mass_kg,
-                  grip: dataset.tire.mu_longitudinal,
-                  fitness: null,
-                  optimizer: winner.toLowerCase() as any
-                });
-              }}
-              runQuantumFn={() => {
-                const steps: AnnealingStep[] = [];
-                quantumAnnealingOptimize(dataset, 100, (s) => steps.push(s));
-                const best = steps.reduce((a, b) => a.fitness > b.fitness ? a : b);
-                return { fitness: best.fitness * 100, gearRatios: best.gearRatios };
-              }}
-              runSwarmFn={() => {
-                const result = swarmOptimize(dataset, 30, 50);
-                return { fitness: result.fitness, gearRatios: result.gearRatios };
-              }}
-              runGeneticFn={() => {
-                const result = geneticOptimize(dataset, 40, 50);
-                return { fitness: result.fitness, gearRatios: result.gearRatios };
-              }}
-            />
-          </Section>
-
-          <Section title="SOLVER CONTROL">
-            <div className="grid grid-cols-2 gap-3">
-              <PremiumButton onClick={runSim}>Sim</PremiumButton>
-              <PremiumButton onClick={runClassical} disabled={isRunning}>Classical</PremiumButton>
-              <PremiumButton onClick={runQuantum} disabled={isRunning}>Quantum</PremiumButton>
-              <PremiumButton onClick={runSwarm} disabled={isRunning}>Swarm</PremiumButton>
-              <div className="col-span-2">
-                <PremiumButton onClick={runGenetic} disabled={isRunning} className="w-full">DNA Evolution</PremiumButton>
-              </div>
-            </div>
-          </Section>
+      <div className="flex flex-1 overflow-hidden z-10 flex-col lg:flex-row">
+        {/* LEFT — Inputs (Desktop) */}
+        <aside className="hidden lg:flex w-80 border-r border-panel bg-panel overflow-y-auto p-4 flex-col gap-4 relative z-20 racing-stripe custom-scrollbar">
+          {SidebarLeftContent}
         </aside>
 
         {/* CENTER — Visualization */}
-        <main className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex border-b border-panel bg-panel/80 relative">
+        <main className="flex-1 flex flex-col overflow-hidden relative">
+          <div className="flex border-b border-panel bg-panel/80 relative overflow-x-auto custom-scrollbar scrollbar-hide shrink-0 snap-x">
             {/* Checkered strip on top of tabs */}
             <div className="absolute top-0 left-0 right-0 checkered-strip" />
             {(['sim', 'twin', 'quantum', 'swarm', 'dna', 'strategy', 'analytics'] as const).map((tab, idx) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-6 py-3.5 text-[10px] font-display tracking-[.2em] uppercase transition-all border-b-2 relative group/tab ${activeTab === tab
+                className={`px-4 lg:px-6 py-3 lg:py-3.5 text-[9px] lg:text-[10px] font-display tracking-[.2em] uppercase transition-all border-b-2 relative group/tab shrink-0 snap-start border-panel-border ${activeTab === tab
                   ? 'border-primary text-primary bg-red-950/10'
                   : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-red-950/5'
                   }`}
               >
                 {/* Sector number badge */}
-                <span className={`inline-flex items-center justify-center w-4 h-4 text-[7px] font-mono font-black rounded mr-1.5 ${activeTab === tab ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}>
+                <span className={`inline-flex items-center justify-center w-3 h-3 lg:w-4 lg:h-4 text-[6px] lg:text-[7px] font-mono font-black rounded mr-1 lg:mr-1.5 ${activeTab === tab ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}>
                   {idx + 1}
                 </span>
-                {tab === 'sim' ? 'Track Data' : tab === 'twin' ? 'Digital Twin' : tab === 'quantum' ? 'Quantum' : tab === 'swarm' ? 'Swarm' : tab === 'dna' ? 'DNA Lab' : tab === 'analytics' ? 'Telemetry' : 'Pit Wall AI'}
+                <span className="whitespace-nowrap">
+                  {tab === 'sim' ? 'Track Data' : tab === 'twin' ? 'Digital Twin' : tab === 'quantum' ? 'Quantum' : tab === 'swarm' ? 'Swarm' : tab === 'dna' ? 'DNA Lab' : tab === 'analytics' ? 'Telemetry' : 'Pit Wall AI'}
+                </span>
               </button>
             ))}
           </div>
 
-          <div className="flex-1 overflow-auto p-6 grid-bg custom-scrollbar space-y-6">
+          <div className="flex-1 overflow-y-auto p-3 lg:p-6 custom-scrollbar relative bg-[#0a0a0a]">
             {activeTab === 'twin' && (
-              <div className="flex flex-col gap-6 h-full min-h-[850px]">
+              <div className="flex flex-col gap-6 h-full">
                 <DigitalTwin
                   simData={simData}
                   progress={replayProgress}
@@ -492,7 +625,7 @@ const GearOptDashboard = () => {
                   isMuted={isMuted}
                 />
 
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <ChartPanel title="TWIN TELEMETRY" subtitle="Synchronized Feed">
                     <PremiumLineChart
                       data={simData.slice(0, Math.floor((replayProgress / 100) * simData.length))}
@@ -514,9 +647,9 @@ const GearOptDashboard = () => {
             )}
 
             {activeTab === 'sim' && (
-              <div className="flex flex-col gap-6 h-full min-h-[950px]">
+              <div className="flex flex-col gap-6 lg:min-h-[950px]">
                 {/* Dynamic Track Replay - High Fidelity Sequential Monitor */}
-                <div className="glass-panel p-8 relative overflow-hidden h-56 flex flex-col justify-center rounded-2xl group transition-all duration-500 hover:shadow-primary/5 bg-[#080808] kerb-stripe-top">
+                <div className="glass-panel p-4 lg:p-8 relative overflow-hidden min-h-[180px] lg:h-56 flex flex-col justify-center rounded-2xl group transition-all duration-500 hover:shadow-primary/5 bg-[#080808] kerb-stripe-top">
                   {/* Asphalt background texture */}
                   <div className="absolute inset-0 opacity-[0.08] pointer-events-none" style={{
                     backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
@@ -682,7 +815,7 @@ const GearOptDashboard = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-6 flex-1">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 flex-1">
                   <ChartPanel title="ENGINE PERFORMANCE" subtitle="Torque (Nm) vs RPM">
                     <PremiumLineChart
                       data={dataset.engine.torque_curve}
@@ -732,7 +865,7 @@ const GearOptDashboard = () => {
                       <h2 className="font-display text-lg tracking-[0.4em] neon-text-purple uppercase">Quantum Strategy Engine</h2>
                       <p className="text-muted-foreground text-[10px] font-mono mt-2">Probability density annealing for optimal race configuration</p>
                     </div>
-                    <div className="flex-1 min-h-[400px] bg-panel/50 backdrop-blur rounded-2xl border border-panel overflow-hidden relative group">
+                    <div className="relative w-full h-[600px] lg:h-[850px] glass-panel rounded-2xl overflow-hidden bg-background/40 border border-panel/50 group flex flex-col">
                       <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent pointer-events-none" />
                       <QuantumVisualizer steps={annealingSteps} isRunning={isRunning} />
                     </div>
@@ -890,7 +1023,7 @@ const GearOptDashboard = () => {
                       <PremiumButton onClick={() => window.print()} className="min-w-[150px]">Export PDF</PremiumButton>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-8 mb-10">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8 mb-10">
                       <div className="p-6 bg-background/40 rounded-2xl border border-panel/50">
                         <span className="text-[10px] font-mono text-primary uppercase tracking-[0.2em] font-bold block mb-4">Core Telemetry</span>
                         <div className="space-y-4">
@@ -944,73 +1077,9 @@ const GearOptDashboard = () => {
           </div>
         </main>
 
-        {/* RIGHT — Race Standings Panel */}
-        <aside className="w-72 border-l border-panel bg-panel overflow-y-auto p-4 flex flex-col gap-4 relative custom-scrollbar">
-          {/* Checkered flag accent */}
-          <div className="absolute top-0 left-0 right-0 checkered-strip" />
-          <Section title="EVENT TELEMETRY">
-            <MetricRow label="Accel (75m)" value={eventResults.accel > 0 ? `${eventResults.accel.toFixed(3)}s` : '—'} color="cyan" />
-            <MetricRow label="Skidpad (2 Laps)" value={eventResults.skidpad > 0 ? `${eventResults.skidpad.toFixed(3)}s` : '—'} color="green" />
-            <MetricRow label="Autocross" value={eventResults.autocross > 0 ? `${eventResults.autocross.toFixed(2)}s` : '—'} color="orange" />
-            <div className="h-[1px] bg-panel my-2" />
-            <MetricRow label="Course Velocity" value={simData.length > 0 ? `${(simData[simData.length - 1].velocity * 3.6).toFixed(1)} km/h` : '—'} color="cyan" />
-            <MetricRow label="Peak Long G" value={simData.length > 0 ? `${Math.max(...simData.map(d => d.acceleration_long / 9.81)).toFixed(2)}G` : '—'} color="orange" />
-            <MetricRow label="Total Downforce" value={simData.length > 0 ? `${simData[simData.length - 1].downforce.toFixed(0)} N` : '—'} color="purple" />
-          </Section>
-
-          <SessionHistoryPanel />
-
-          <Section title="GEARBOX MAPPING">
-            <div className="space-y-2">
-              {dataset.gearbox.gears.map((r, i) => (
-                <div key={i} className="flex justify-between items-center text-[10px] font-mono bg-background/50 p-2 rounded border border-panel group/gear hover:border-red-900/40 transition-colors">
-                  <span className="text-muted-foreground flex items-center gap-1.5">
-                    <span className="inline-block w-3 h-3 text-[7px] font-black rounded bg-red-950 text-red-400 flex items-center justify-center">{i + 1}</span>
-                    GEAR {i + 1}
-                  </span>
-                  <span className="neon-text-cyan font-bold">{r.toFixed(2)}</span>
-                  <span className="text-[9px] text-muted-foreground opacity-50">{(r * dataset.gearbox.final_drive_ratio).toFixed(2)} TOTAL</span>
-                </div>
-              ))}
-            </div>
-          </Section>
-
-          {optimizedResult && (
-            <div className="bg-red-950/15 border border-primary/20 rounded-lg p-3 space-y-3">
-              <h3 className="font-display text-[10px] tracking-widest text-primary uppercase flex items-center gap-2"><Flame size={12} /> Optimized Setup</h3>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="text-center bg-background/50 rounded py-2">
-                  <div className="text-[9px] text-muted-foreground">TIME</div>
-                  <div className="text-sm font-bold neon-text-green">{optimizedResult.accelTime.toFixed(3)}s</div>
-                </div>
-                <div className="text-center bg-background/50 rounded py-2">
-                  <div className="text-[9px] text-muted-foreground">FITNESS</div>
-                  <div className="text-sm font-bold neon-text-cyan">{optimizedResult.fitness.toFixed(1)}</div>
-                </div>
-              </div>
-              <div className="flex flex-col gap-3">
-                <PremiumButton
-                  onClick={() => {
-                    setDataset({ ...dataset, gearbox: { ...dataset.gearbox, gears: optimizedResult.gearRatios } });
-                    addLog('System converged to optimized gearset.');
-                  }}
-                  className="w-full"
-                >
-                  Apply Solution
-                </PremiumButton>
-                <PremiumButton
-                  onClick={() => {
-                    setBaselineSimData(simData);
-                    setShowGhost(true);
-                    addLog('BASELINE: Reference sim locked.');
-                  }}
-                  className="w-full opacity-80"
-                >
-                  Lock Baseline
-                </PremiumButton>
-              </div>
-            </div>
-          )}
+        {/* RIGHT — Race Standings Panel (Desktop) */}
+        <aside className="hidden lg:flex w-72 border-l border-panel bg-panel overflow-y-auto p-4 flex-col gap-4 relative custom-scrollbar shrink-0">
+          {SidebarRightContent}
         </aside>
       </div>
 
