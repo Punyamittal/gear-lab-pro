@@ -90,13 +90,13 @@ Gemini AI->>UI: Strategy Recommendation
 ## 🔷 Tractive Effort vs Velocity
 
 ```mermaid
-xychart-beta
-    title "Tractive Effort vs Velocity"
-    x-axis Velocity (km/h)
-    y-axis Tractive Force (N)
-    series "Gear 1" : 0,8000,7000,5000,3000
-    series "Gear 2" : 0,6000,5500,4500,3200
-    series "Gear 3" : 0,4500,4200,3800,3400
+
+pie title Relative Tractive Effort Contribution
+    "Gear 1 Peak Zone" : 35
+    "Gear 2 Mid Accel" : 30
+    "Gear 3 High Speed Pull" : 20
+    "Traction Limited Region" : 15
+
 ```
 
 ---
@@ -104,11 +104,12 @@ xychart-beta
 ## 🔷 Acceleration Time Comparison
 
 ```mermaid
-barChart
-    title 0-75m Acceleration Comparison
-    "Baseline Setup" : 4.21
-    "Optimized Setup" : 3.87
-    "Aggressive Final Drive" : 3.79
+
+pie title 0-75m Time Share Comparison
+    "Baseline Setup (4.21s)" : 421
+    "Optimized Setup (3.87s)" : 387
+    "Aggressive Final (3.79s)" : 379
+
 ```
 
 ---
