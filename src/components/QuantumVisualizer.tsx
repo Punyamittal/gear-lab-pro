@@ -51,126 +51,138 @@ const QuantumVisualizer = ({ steps, isRunning }: QuantumVisualizerProps) => {
     const cx = w / 2, cy = h / 2;
 
     const draw = (time: number) => {
-      // Trail effect
-      ctx.fillStyle = 'rgba(10, 10, 15, 0.15)';
+      // Trail effect with adaptive decay
+      const step = steps[currentStep];
+      const nextStep = steps[currentStep + 1] || step;
+      const progress = currentStep / Math.max(steps.length - 1, 1);
+      const tempFactor = step?.temperature / 2.0 || 0;
+
+      ctx.fillStyle = `rgba(8, 8, 8, ${0.15 + tempFactor * 0.1})`;
       ctx.fillRect(0, 0, w, h);
 
-      // Grid
-      ctx.strokeStyle = 'rgba(139, 92, 246, 0.05)';
+      // Racing Surface Grid - Stabilizes as it cools
+      const gridOpacity = 0.04 + (1 - tempFactor) * 0.06;
+      ctx.strokeStyle = `rgba(239, 68, 68, ${gridOpacity})`;
       ctx.lineWidth = 1;
-      for (let x = 0; x < w; x += 30) {
+      const gridOffset = (time * 0.02) % 30;
+      for (let x = -gridOffset; x < w; x += 30) {
         ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
       }
-      for (let y = 0; y < h; y += 30) {
+      for (let y = -gridOffset; y < h; y += 30) {
         ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
       }
 
-      const step = steps[currentStep];
       if (!step) {
         animRef.current = requestAnimationFrame(draw);
         return;
       }
 
-      const progress = currentStep / Math.max(steps.length - 1, 1);
-      const tempFactor = step.temperature / 2.0;
-
-      // Draw Oscillating Field Strings
-      const numStrings = 8;
+      // Draw Oscillating Field Strings - Quantum Field
+      const numStrings = 12;
       for (let i = 0; i < numStrings; i++) {
         const offset = (i / numStrings) * Math.PI * 2;
         ctx.beginPath();
-        ctx.strokeStyle = `hsla(${270 + i * 5}, 80%, 60%, ${0.1 + (1 - tempFactor) * 0.2})`;
-        ctx.lineWidth = 1.5;
+        const hue = 260 + i * 10;
+        ctx.strokeStyle = `hsla(${hue}, 80%, 60%, ${0.05 + (1 - tempFactor) * 0.15})`;
+        ctx.lineWidth = 1 + (1 - tempFactor);
 
-        for (let x = 0; x < w; x += 5) {
-          const wave1 = Math.sin(x * 0.01 + time * 0.002 + offset) * 40 * tempFactor;
-          const wave2 = Math.sin(x * 0.03 - time * 0.005 + offset) * 20 * tempFactor;
-          const y = cy + wave1 + wave2;
-          if (x === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
+        ctx.moveTo(0, cy);
+        for (let x = 0; x < w; x += 10) {
+          const wave1 = Math.sin(x * 0.01 + time * 0.002 + offset) * 50 * tempFactor;
+          const wave2 = Math.cos(x * 0.02 - time * 0.003 + offset) * 25 * tempFactor;
+          const noise = (Math.random() - 0.5) * 5 * tempFactor; // High energy noise
+          const y = cy + wave1 + wave2 + noise;
+          ctx.lineTo(x, y);
         }
         ctx.stroke();
       }
 
-      // Particles - "Quantum States"
+      // Particles - "Quantum States" with Damping
       particles.current.forEach(p => {
-        p.x += p.vx * tempFactor;
-        p.y += p.vy * tempFactor;
-        if (p.x < 0 || p.x > w) p.vx *= -1;
-        if (p.y < 0 || p.y > h) p.vy *= -1;
+        // Apply forces
+        const dx = cx - p.x;
+        const dy = cy - p.y;
+        const dist = Math.hypot(dx, dy);
 
-        const distToCenter = Math.hypot(p.x - cx, p.y - cy);
-        const pull = (1 - tempFactor) * 2;
-        p.vx += (cx - p.x) * 0.001 * pull;
-        p.vy += (cy - p.y) * 0.001 * pull;
+        // Quantum Tunneling Effect: Nudge towards center
+        const force = (1 - tempFactor) * 0.005;
+        p.vx += dx * force;
+        p.vy += dy * force;
 
-        ctx.fillStyle = `hsla(185, 100%, 50%, ${p.alpha * (0.3 + (1 - tempFactor) * 0.7)})`;
-        const size = (1 - tempFactor) * 3 + 1;
+        // Friction/Damping
+        p.vx *= 0.98;
+        p.vy *= 0.98;
+
+        p.x += p.vx * (0.5 + tempFactor);
+        p.y += p.vy * (0.5 + tempFactor);
+
+        if (p.x < 0 || p.x > w) p.vx *= -0.8;
+        if (p.y < 0 || p.y > h) p.vy *= -0.8;
+
+        const size = Math.abs(Math.max(0, (1 - tempFactor) * 4 + 1));
+        const opacity = p.alpha * (0.2 + (1 - tempFactor) * 0.8);
+
+        ctx.fillStyle = `hsla(${tempFactor * 360}, 90%, 60%, ${opacity})`;
         ctx.beginPath();
         ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
         ctx.fill();
 
-        if (distToCenter < 100 * (1 - tempFactor)) {
-          ctx.shadowBlur = 10;
-          ctx.shadowColor = 'cyan';
+        if (dist < 120 * (1 - tempFactor)) {
+          ctx.shadowBlur = Math.abs(Math.max(0, 15 * (1 - tempFactor)));
+          ctx.shadowColor = 'rgba(239, 68, 68, 0.5)';
           ctx.fill();
           ctx.shadowBlur = 0;
         }
       });
 
-      // Central Probability Density
-      const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, 120 * tempFactor + 20);
-      gradient.addColorStop(0, `hsla(270, 100%, 60%, ${0.3 * (1 - progress)})`);
-      gradient.addColorStop(1, 'transparent');
-      ctx.fillStyle = gradient;
+      // Central Probability Density - The "Quantum Eye"
+      const eyeRadius = Math.abs(Math.max(0, 60 * tempFactor + 40));
+      const eyeGradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, eyeRadius);
+      eyeGradient.addColorStop(0, `hsla(280, 100%, 70%, ${0.4 * (1 - progress)})`);
+      eyeGradient.addColorStop(1, 'transparent');
+      ctx.fillStyle = eyeGradient;
       ctx.beginPath();
-      ctx.arc(cx, cy, 120 * tempFactor + 20, 0, Math.PI * 2);
+      ctx.arc(cx, cy, eyeRadius, 0, Math.PI * 2);
       ctx.fill();
 
-      // Convergence Glow
-      if (progress > 0.5) {
-        const glowAlpha = (progress - 0.5) * 2;
-        const pulse = Math.sin(time * 0.005) * 10;
-        const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, 40 + pulse);
-        glow.addColorStop(0, `hsla(155, 100%, 50%, ${glowAlpha * 0.4})`);
-        glow.addColorStop(1, 'transparent');
-        ctx.fillStyle = glow;
-        ctx.beginPath();
-        ctx.arc(cx, cy, 40 + pulse, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Target Flare
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = 'hsl(155, 100%, 50%)';
-        ctx.strokeStyle = `hsla(155, 100%, 50%, ${glowAlpha})`;
-        ctx.strokeRect(cx - 2, cy - 2, 4, 4);
+      // Final Convergence Flare
+      if (progress > 0.8) {
+        const flareAlpha = (progress - 0.8) * 5;
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = 'white';
+        ctx.strokeStyle = `rgba(255, 255, 255, ${flareAlpha})`;
+        ctx.lineWidth = 2;
+        ctx.strokeRect(cx - 5, cy - 5, 10, 10);
         ctx.shadowBlur = 0;
       }
 
-      // HUD UI elements
+      // HUD UI - Precision Stabilized
       ctx.save();
-      ctx.font = '9px "JetBrains Mono", monospace';
+      ctx.font = '10px "JetBrains Mono", monospace';
 
-      // Top Left Stats
-      ctx.fillStyle = 'rgba(139, 92, 246, 0.8)';
-      ctx.fillText('CORE_TEMPERATURE', 20, 30);
+      // Data Stream
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.fillText(`FIELD_STABILITY: ${(100 - tempFactor * 100).toFixed(2)}%`, 20, 30);
+
+      ctx.fillStyle = step.accepted ? '#22c55e' : '#ef4444';
+      ctx.fillText(`SYSTEM_STATE: ${step.accepted ? 'STABLE' : 'FLUCTUATING'}`, 20, 45);
+
+      // Current Best Tracking
       ctx.fillStyle = 'white';
-      ctx.font = 'bold 12px "JetBrains Mono", monospace';
-      ctx.fillText(`${(step.temperature * 100).toFixed(1)} mK`, 20, 45);
+      ctx.font = 'bold 14px "JetBrains Mono", monospace';
+      ctx.fillText(`ΔT -${step.fitness.toFixed(4)}s`, 20, 70);
 
-      ctx.font = '9px "JetBrains Mono", monospace';
-      ctx.fillStyle = 'rgba(6, 182, 212, 0.8)';
-      ctx.fillText('SYSTEM_FITNESS', 20, 70);
-      ctx.fillStyle = 'white';
-      ctx.font = 'bold 12px "JetBrains Mono", monospace';
-      ctx.fillText(step.fitness.toFixed(5), 20, 85);
-
-      // Bottom Right Ratios
-      const ratioText = `RATIOS: [${step.gearRatios.map(r => r.toFixed(2)).join(', ')}]`;
-      ctx.font = '9px "JetBrains Mono", monospace';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-      const textW = ctx.measureText(ratioText).width;
-      ctx.fillText(ratioText, w - textW - 20, h - 20);
+      // Ratio Visualizer Grid
+      const boxW = 40;
+      ctx.translate(w - 260, h - 50);
+      step.gearRatios.forEach((r, i) => {
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.strokeRect(i * (boxW + 5), 0, boxW, 20);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.font = 'bold 9px "JetBrains Mono", monospace';
+        ctx.fillText(r.toFixed(2), i * (boxW + 5) + 5, 13);
+      });
+      ctx.restore();
 
       // Scanning Line
       const scanY = (time * 0.1) % h;
@@ -199,16 +211,16 @@ const QuantumVisualizer = ({ steps, isRunning }: QuantumVisualizerProps) => {
       {/* Overlay UI */}
       <div className="absolute top-4 right-4 flex flex-col items-end gap-1">
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-mono text-purple-400/70">STOCHASTIC_TUNNELING</span>
+          <span className="text-[10px] font-mono text-f1-red opacity-80 uppercase tracking-widest">Quantum Simulation</span>
           <div className={`w-2 h-2 rounded-full ${steps[currentStep]?.accepted ? 'bg-green-500 animate-pulse' : 'bg-red-500/50'}`} />
         </div>
-        <div className="text-[9px] font-mono text-white/30">ITER: {String(currentStep).padStart(3, '0')}</div>
+        <div className="text-[9px] font-mono text-white/30">CYCLE: {String(currentStep).padStart(3, '0')}</div>
       </div>
 
-      <div className="absolute bottom-4 left-4 border-l-2 border-purple-500 pl-3">
-        <div className="text-[10px] font-display text-purple-400 tracking-widest uppercase">Phase Convergence</div>
+      <div className="absolute bottom-4 left-4 border-l-2 border-red-600 pl-3">
+        <div className="text-[10px] font-display text-red-500 tracking-widest uppercase">Phase Convergence</div>
         <div className="text-xs font-mono text-white/50">
-          {steps[currentStep]?.probability > 0.9 ? 'STABILIZED' : 'FLUCTUATING'}
+          {steps[currentStep]?.probability > 0.9 ? 'STABILIZED' : 'ANALYZING'}
         </div>
       </div>
     </div>

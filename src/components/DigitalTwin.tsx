@@ -5,9 +5,10 @@ interface DigitalTwinProps {
     simData: SimPoint[];
     progress: number; // 0 to 100
     isRunning: boolean;
+    isMuted: boolean;
 }
 
-export const DigitalTwin = ({ simData, progress, isRunning }: DigitalTwinProps) => {
+export const DigitalTwin = ({ simData, progress, isRunning, isMuted }: DigitalTwinProps) => {
     const currentPoint = useMemo(() => {
         if (simData.length === 0) return null;
         const index = Math.floor((progress / 100) * (simData.length - 1));
@@ -19,10 +20,10 @@ export const DigitalTwin = ({ simData, progress, isRunning }: DigitalTwinProps) 
             {/* Header Overlay */}
             <div className="absolute top-6 left-6 z-20 pointer-events-none">
                 <div className="flex items-center gap-3">
-                    <div className="w-2.5 h-2.5 rounded-full bg-cyan-500 animate-pulse shadow-[0_0_12px_rgba(6,182,212,0.5)]" />
-                    <h3 className="font-display text-[14px] tracking-[0.4em] text-cyan-400 uppercase font-black">Digital Twin Stream</h3>
+                    <div className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_12px_rgba(220,38,38,0.5)]" />
+                    <h3 className="font-display text-[14px] tracking-[0.4em] text-red-500 uppercase font-black">Digital Twin Stream</h3>
                 </div>
-                <p className="text-[10px] font-mono text-muted-foreground mt-1 uppercase tracking-widest opacity-60">High-Fidelity Virtual Representation • Aston Martin AMR23</p>
+                <p className="text-[10px] font-mono text-muted-foreground mt-1 uppercase tracking-widest opacity-60">High-Fidelity Virtual Representation • F1 Prototype</p>
             </div>
 
             <div className="absolute top-6 right-6 z-20 flex flex-col items-end gap-2 text-right pointer-events-none">
@@ -41,7 +42,7 @@ export const DigitalTwin = ({ simData, progress, isRunning }: DigitalTwinProps) 
                 <iframe
                     title="Aston Martin F1 AMR23 2023"
                     allow="autoplay; fullscreen; xr-spatial-tracking"
-                    src="https://sketchfab.com/models/f6ba825a43b146a9b669934a4e1fd529/embed?autostart=1&camera=0&preload=1&transparent=1&ui_hint=0&ui_theme=dark"
+                    src={`https://sketchfab.com/models/f6ba825a43b146a9b669934a4e1fd529/embed?autostart=1&camera=0&preload=1&transparent=1&ui_hint=0&ui_theme=dark&sound=${isMuted ? 0 : 1}`}
                     className="w-full h-full border-0"
                 />
             </div>
@@ -64,7 +65,7 @@ export const DigitalTwin = ({ simData, progress, isRunning }: DigitalTwinProps) 
                         </div>
                         <div className="w-full h-[2px] bg-panel/30 rounded-full mt-3 overflow-hidden">
                             <div
-                                className="h-full bg-gradient-to-r from-primary to-cyan-400 transition-all duration-300 ease-out"
+                                className="h-full bg-gradient-to-r from-red-600 to-yellow-500 transition-all duration-300 ease-out"
                                 style={{ width: `${Math.min(100, Number(m.val) / (m.label === 'ENGINE SPEED' ? 140 : 1))}%` }}
                             />
                         </div>

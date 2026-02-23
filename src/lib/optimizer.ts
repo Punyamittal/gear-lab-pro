@@ -97,36 +97,64 @@ export interface AnnealingStep {
 
 export function quantumAnnealingOptimize(
   dataset: MasterDataset = MASTER_DATASET,
-  maxIterations: number = 300,
+  maxIterations: number = 500, // Increased for stability
   onStep?: (step: AnnealingStep) => void
 ): OptimizationResult {
+  const { constraints } = dataset.gearbox;
   let current = randomGears(dataset);
   let currentFitness = evaluateFitness(current, dataset);
   let best = [...current];
   let bestFitness = currentFitness;
-  let temperature = 2.0;
-  const coolingRate = 0.993;
+
+  let temperature = 4.0; // Higher starting temp for broader search
+  const coolingRate = 0.985; // Slightly slower cooling
+  const minFitnessDelta = 0.0001;
+  let stalledIterations = 0;
 
   for (let i = 0; i < maxIterations; i++) {
-    // Perturb
+    // Perturb: Use Adaptive Cauchy-style distribution for "Quantum Tunneling"
+    // Occasional long jumps (tunneling) while mostly doing local searches
     const neighbor = current.map(r => {
-      const delta = (Math.random() - 0.5) * temperature * 0.5;
-      return Math.max(dataset.gearbox.constraints.min_ratio, Math.min(dataset.gearbox.constraints.max_ratio, r + delta));
+      const isTunneling = Math.random() < 0.05; // 5% tunneling probability
+      const scale = isTunneling ? 1.0 : temperature * 0.25;
+
+      // Cauchy-like "Quantum" perturbation
+      const delta = (Math.tan(Math.PI * (Math.random() - 0.5))) * scale * 0.1;
+
+      const newVal = r + delta;
+      return Math.max(constraints.min_ratio, Math.min(constraints.max_ratio, newVal));
     }).sort((a, b) => b - a);
 
     const neighborFitness = evaluateFitness(neighbor, dataset);
     const delta = neighborFitness - currentFitness;
-    const prob = delta > 0 ? 1 : Math.exp(delta / (temperature * 0.1));
+
+    // Normalized Boltzman probability
+    // Scale delta relative to typical fitness ranges
+    const prob = delta > 0 ? 1 : Math.exp(delta / (temperature * 0.05));
     const accepted = Math.random() < prob;
 
     if (accepted) {
+      if (Math.abs(neighborFitness - currentFitness) < minFitnessDelta) {
+        stalledIterations++;
+      } else {
+        stalledIterations = 0;
+      }
       current = neighbor;
       currentFitness = neighborFitness;
+    } else {
+      stalledIterations++;
     }
 
     if (currentFitness > bestFitness) {
       best = [...current];
       bestFitness = currentFitness;
+      stalledIterations = 0;
+    }
+
+    // Dynamic Reheating: If stuck too long, slight burst in temperature
+    if (stalledIterations > 40 && temperature < 0.5) {
+      temperature += 0.5;
+      stalledIterations = 0;
     }
 
     temperature *= coolingRate;
@@ -141,6 +169,9 @@ export function quantumAnnealingOptimize(
         probability: prob,
       });
     }
+
+    // Early exit if cooled and converged
+    if (temperature < 0.001 && stalledIterations > 50) break;
   }
 
   return {
@@ -161,7 +192,7 @@ export interface SwarmParticle {
 
 export interface SwarmStep {
   iteration: number;
-  particles: { x: number; y: number; fitness: number }[];
+  particles: { position: number[]; fitness: number }[];
   globalBest: number[];
   globalBestFitness: number;
 }
@@ -222,8 +253,7 @@ export function swarmOptimize(
       onStep({
         iteration: iter,
         particles: particles.map(p => ({
-          x: p.position[0] || 0,
-          y: p.position[1] || 0,
+          position: [...p.position],
           fitness: p.fitness,
         })),
         globalBest: [...globalBest],

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Outfit:wght@100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Outfit:wght@100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Orbitron:wght@400..900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,59 +6,78 @@
 
 @layer base {
   :root {
-    /* Core dark theme */
-    --background: 230 25% 5%;
-    --foreground: 200 20% 90%;
+    /* F1 Track Theme — Carbon Asphalt Dark */
+    --background: 220 15% 4%;
+    --foreground: 0 0% 93%;
 
-    --card: 230 20% 8%;
-    --card-foreground: 200 20% 90%;
+    --card: 220 12% 7%;
+    --card-foreground: 0 0% 93%;
 
-    --popover: 230 20% 8%;
-    --popover-foreground: 200 20% 90%;
+    --popover: 220 12% 7%;
+    --popover-foreground: 0 0% 93%;
 
-    /* Neon Cyan brand */
-    --primary: 185 100% 50%;
-    --primary-foreground: 230 25% 5%;
+    /* Pastel Cyan brand — User Refined */
+    --primary: 185 60% 72%;
+    --primary-foreground: 220 25% 5%;
 
-    /* Deep slate panels */
-    --secondary: 220 20% 12%;
-    --secondary-foreground: 200 20% 85%;
+    /* Deep carbon panels */
+    --secondary: 220 12% 10%;
+    --secondary-foreground: 0 0% 85%;
 
-    --muted: 220 15% 15%;
-    --muted-foreground: 215 15% 50%;
+    --muted: 220 10% 14%;
+    --muted-foreground: 220 10% 50%;
 
-    /* Electric green accent */
-    --accent: 155 100% 50%;
-    --accent-foreground: 230 25% 5%;
+    /* Pastel green accent — User Refined */
+    --accent: 155 55% 68%;
+    --accent-foreground: 220 25% 5%;
 
     --destructive: 0 80% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 18%;
-    --input: 220 15% 15%;
-    --ring: 185 100% 50%;
+    --border: 220 12% 16%;
+    --input: 220 12% 14%;
+    --ring: 0 85% 50%;
 
     --radius: 0.5rem;
 
-    /* Custom motorsport tokens */
-    --neon-cyan: 185 100% 50%;
-    --neon-green: 155 100% 50%;
-    --neon-orange: 30 100% 55%;
-    --neon-purple: 270 100% 65%;
-    --neon-red: 0 100% 60%;
+    /* F1-specific motorsport tokens */
+    --f1-red: 0 85% 50%;
+    --f1-white: 0 0% 95%;
+    --f1-gold: 45 90% 55%;
+    --f1-carbon: 220 12% 7%;
+    --f1-asphalt: 220 10% 12%;
+    --f1-kerb-red: 0 80% 48%;
+    --f1-kerb-white: 0 0% 95%;
+    --f1-drs-green: 145 70% 45%;
+    --f1-safety-yellow: 50 95% 55%;
+    --f1-flag-blue: 215 80% 55%;
 
-    --panel-bg: 230 20% 7%;
-    --panel-border: 220 15% 16%;
-    --panel-hover: 220 15% 22%;
-    --console-bg: 230 25% 4%;
+    /* Tire compound colors */
+    --tire-soft: 0 80% 50%;
+    --tire-medium: 45 90% 55%;
+    --tire-hard: 0 0% 80%;
+    --tire-intermediate: 145 60% 45%;
+    --tire-wet: 215 70% 50%;
 
-    --glass: rgba(13, 17, 23, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.08);
+    /* Custom motorsport tokens — pastel palette */
+    --neon-cyan: 185 60% 72%;
+    --neon-green: 155 55% 68%;
+    --neon-orange: 25 70% 72%;
+    --neon-purple: 270 55% 75%;
+    --neon-red: 0 60% 72%;
 
-    --glow-cyan: 0 0 25px hsl(185 100% 50% / 0.25);
-    --glow-green: 0 0 25px hsl(155 100% 50% / 0.25);
-    --glow-orange: 0 0 25px hsl(30 100% 55% / 0.25);
-    --glow-purple: 0 0 25px hsl(270 100% 65% / 0.25);
+    --panel-bg: 220 12% 6%;
+    --panel-border: 220 10% 14%;
+    --panel-hover: 220 10% 20%;
+    --console-bg: 220 15% 3%;
+
+    --glass: rgba(8, 10, 14, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.06);
+
+    --glow-cyan: 0 0 20px hsl(185 60% 72% / 0.15);
+    --glow-green: 0 0 20px hsl(155 55% 68% / 0.15);
+    --glow-orange: 0 0 20px hsl(25 70% 72% / 0.15);
+    --glow-purple: 0 0 20px hsl(270 55% 75% / 0.15);
 
     --destructive-foreground: oklch(1 0 0);
   }
@@ -89,16 +108,20 @@
 }
 
 @layer utilities {
+
+  /* ═══════════════════════════════════════════════ */
+  /*  F1 TRACK TEXT COLORS                          */
+  /* ═══════════════════════════════════════════════ */
   .text-neon-cyan {
-    color: hsl(var(--neon-cyan));
+    color: hsl(var(--f1-red));
   }
 
   .text-neon-green {
-    color: hsl(var(--neon-green));
+    color: hsl(var(--f1-drs-green));
   }
 
   .text-neon-orange {
-    color: hsl(var(--neon-orange));
+    color: hsl(var(--f1-gold));
   }
 
   .text-neon-purple {
@@ -106,9 +129,28 @@
   }
 
   .text-neon-red {
-    color: hsl(var(--neon-red));
+    color: hsl(var(--f1-red));
   }
 
+  .text-f1-red {
+    color: hsl(var(--f1-red));
+  }
+
+  .text-f1-gold {
+    color: hsl(var(--f1-gold));
+  }
+
+  .text-f1-green {
+    color: hsl(var(--f1-drs-green));
+  }
+
+  .text-f1-white {
+    color: hsl(var(--f1-white));
+  }
+
+  /* ═══════════════════════════════════════════════ */
+  /*  PANEL & SURFACE UTILITIES                     */
+  /* ═══════════════════════════════════════════════ */
   .bg-panel {
     background-color: hsl(var(--panel-bg));
     border-color: hsl(var(--panel-border));
@@ -122,54 +164,89 @@
     border-color: hsl(var(--panel-border));
   }
 
-  .glow-cyan {
-    box-shadow: var(--glow-cyan);
+  /* ═══════════════════════════════════════════════ */
+  /*  GLOW ACCENTS                                  */
+  /* ═══════════════════════════════════════════════ */
+  .glow-cyan,
+  .glow-red {
+    box-shadow: var(--glow-red);
   }
 
   .glow-green {
     box-shadow: var(--glow-green);
   }
 
+  .glow-gold {
+    box-shadow: var(--glow-gold);
+  }
+
+  /* ═══════════════════════════════════════════════ */
+  /*  NEON TEXT EFFECTS (F1 MAPPED)                 */
+  /* ═══════════════════════════════════════════════ */
   .neon-text-cyan {
-    color: hsl(var(--neon-cyan));
-    text-shadow: 0 0 10px hsl(185 100% 50% / 0.5), 0 0 20px hsl(185 100% 50% / 0.2);
+    color: hsl(var(--f1-red));
+    text-shadow: 0 0 10px hsl(0 85% 50% / 0.3);
   }
 
   .neon-text-green {
-    color: hsl(var(--neon-green));
-    text-shadow: 0 0 10px hsl(155 100% 50% / 0.5), 0 0 20px hsl(155 100% 50% / 0.2);
+    color: hsl(var(--f1-drs-green));
+    text-shadow: 0 0 10px hsl(145 70% 45% / 0.25);
   }
 
   .neon-text-orange {
-    color: hsl(var(--neon-orange));
-    text-shadow: 0 0 10px hsl(30 100% 55% / 0.5), 0 0 20px hsl(30 100% 55% / 0.2);
+    color: hsl(var(--f1-gold));
+    text-shadow: 0 0 10px hsl(45 90% 55% / 0.25);
   }
 
   .neon-text-purple {
     color: hsl(var(--neon-purple));
-    text-shadow: 0 0 10px hsl(270 100% 65% / 0.5), 0 0 20px hsl(270 100% 65% / 0.2);
+    text-shadow: 0 0 10px hsl(280 50% 60% / 0.25);
   }
 
   .neon-text-red {
-    color: hsl(var(--neon-red));
-    text-shadow: 0 0 10px hsl(0 100% 60% / 0.5), 0 0 20px hsl(0 100% 60% / 0.2);
+    color: hsl(var(--f1-red));
+    text-shadow: 0 0 10px hsl(0 85% 50% / 0.3);
   }
 
+  /* ═══════════════════════════════════════════════ */
+  /*  SCANLINE & TRACK GRID BACKGROUND              */
+  /* ═══════════════════════════════════════════════ */
   .scanline {
     background: repeating-linear-gradient(0deg,
         transparent,
         transparent 2px,
-        hsl(185 100% 50% / 0.03) 2px,
-        hsl(185 100% 50% / 0.03) 4px);
+        hsl(0 85% 50% / 0.02) 2px,
+        hsl(0 85% 50% / 0.02) 4px);
   }
 
   .grid-bg {
     background-image:
-      radial-gradient(hsl(185 100% 50% / 0.1) 1px, transparent 1px),
-      linear-gradient(to right, hsl(185 100% 50% / 0.02) 1px, transparent 1px),
-      linear-gradient(to bottom, hsl(185 100% 50% / 0.02) 1px, transparent 1px);
-    background-size: 30px 30px, 90px 90px, 90px 90px;
-    animation: grid-drift 60s linear infinite;
+      /* Asphalt grain dots */
+      radial-gradient(hsl(0 0% 30% / 0.06) 1px, transparent 1px),
+      /* Track surface grid lines */
+      linear-gradient(to right, hsl(0 85% 50% / 0.015) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(0 85% 50% / 0.015) 1px, transparent 1px);
+    background-size: 20px 20px, 80px 80px, 80px 80px;
+    animation: grid-drift 80s linear infinite;
+    position: relative;
+  }
+
+  /* Subtle kerb-stripe accent on left edge of grid areas */
+  .grid-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: repeating-linear-gradient(to bottom,
+        hsl(var(--f1-red)) 0px,
+        hsl(var(--f1-red)) 8px,
+        hsl(var(--f1-white)) 8px,
+        hsl(var(--f1-white)) 16px);
+    opacity: 0.15;
+    z-index: 1;
+    pointer-events: none;
   }
 
   @keyframes grid-drift {
@@ -178,22 +255,29 @@
     }
 
     to {
-      background-position: 30px 30px, 90px 90px, 90px 90px;
+      background-position: 20px 20px, 80px 80px, 80px 80px;
     }
   }
 
+  /* ═══════════════════════════════════════════════ */
+  /*  GLASS PANEL (CARBON FIBER INSPIRED)           */
+  /* ═══════════════════════════════════════════════ */
   .glass-panel {
     background: var(--glass);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--glass-border);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+    box-shadow:
+      0 8px 32px 0 rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.03);
   }
 
-  /* Premium scrollbar */
+  /* ═══════════════════════════════════════════════ */
+  /*  CUSTOM SCROLLBAR (RACING THEME)               */
+  /* ═══════════════════════════════════════════════ */
   .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
@@ -206,14 +290,20 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--primary) / 0.3);
+    background: hsl(var(--f1-red) / 0.5);
   }
 
+  /* ═══════════════════════════════════════════════ */
+  /*  PANEL GLOW                                    */
+  /* ═══════════════════════════════════════════════ */
   .panel-glow {
     border: 1px solid hsl(var(--panel-border));
-    box-shadow: inset 0 1px 0 hsl(185 100% 50% / 0.05), 0 0 30px hsl(185 100% 50% / 0.03);
+    box-shadow: inset 0 1px 0 hsl(0 85% 50% / 0.04), 0 0 20px hsl(0 85% 50% / 0.02);
   }
 
+  /* ═══════════════════════════════════════════════ */
+  /*  ANIMATIONS                                    */
+  /* ═══════════════════════════════════════════════ */
   @keyframes pulse-neon {
 
     0%,
@@ -222,12 +312,85 @@
     }
 
     50% {
-      opacity: 0.6;
+      opacity: 0.5;
     }
   }
 
   .animate-pulse-neon {
     animation: pulse-neon 2s ease-in-out infinite;
+  }
+
+  /* F1 Start Light Animation */
+  @keyframes start-light {
+    0% {
+      background: hsl(0 0% 15%);
+    }
+
+    20% {
+      background: hsl(0 85% 50%);
+      box-shadow: 0 0 20px hsl(0 85% 50% / 0.6);
+    }
+
+    40% {
+      background: hsl(0 85% 50%);
+      box-shadow: 0 0 20px hsl(0 85% 50% / 0.6);
+    }
+
+    60% {
+      background: hsl(0 85% 50%);
+      box-shadow: 0 0 20px hsl(0 85% 50% / 0.6);
+    }
+
+    80% {
+      background: hsl(0 85% 50%);
+      box-shadow: 0 0 20px hsl(0 85% 50% / 0.6);
+    }
+
+    90% {
+      background: hsl(0 0% 8%);
+      box-shadow: none;
+    }
+
+    100% {
+      background: hsl(0 0% 15%);
+      box-shadow: none;
+    }
+  }
+
+  /* DRS Zone Pulsing */
+  @keyframes drs-pulse {
+
+    0%,
+    100% {
+      box-shadow: 0 0 8px hsl(145 70% 45% / 0.2);
+      border-color: hsl(145 70% 45% / 0.3);
+    }
+
+    50% {
+      box-shadow: 0 0 20px hsl(145 70% 45% / 0.5);
+      border-color: hsl(145 70% 45% / 0.6);
+    }
+  }
+
+  .drs-active {
+    animation: drs-pulse 1.5s ease-in-out infinite;
+  }
+
+  /* Pit Lane Entry Indicator */
+  @keyframes pit-blink {
+
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0.3;
+    }
+  }
+
+  .pit-indicator {
+    animation: pit-blink 0.8s ease-in-out infinite;
   }
 
   @keyframes data-stream {
@@ -250,6 +413,9 @@
     }
   }
 
+  /* ═══════════════════════════════════════════════ */
+  /*  SWEEP LINE (RACING RED)                       */
+  /* ═══════════════════════════════════════════════ */
   @keyframes sweep {
     0% {
       left: -30%;
@@ -267,8 +433,8 @@
     left: -30%;
     width: 30%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, hsl(185 100% 50% / 0.1), transparent);
-    animation: sweep 3s ease-in-out infinite;
+    background: linear-gradient(90deg, transparent, hsl(0 85% 50% / 0.06), transparent);
+    animation: sweep 4s ease-in-out infinite;
   }
 
   .telemetry-font {
@@ -277,6 +443,9 @@
     letter-spacing: 0.05em;
   }
 
+  /* ═══════════════════════════════════════════════ */
+  /*  HERO GLOW & AMBIENT                           */
+  /* ═══════════════════════════════════════════════ */
   @keyframes hero-glow {
 
     0%,
@@ -286,7 +455,7 @@
     }
 
     50% {
-      filter: drop-shadow(0 0 15px hsl(var(--primary) / 0.5));
+      filter: drop-shadow(0 0 18px hsl(var(--primary) / 0.5));
       transform: scale(1.01);
     }
   }
@@ -295,34 +464,140 @@
     animation: hero-glow 4s ease-in-out infinite;
   }
 
+  /* Ambient drift — with F1 themed subtle dots */
   .ambient-drift {
     position: fixed;
     inset: 0;
     pointer-events: none;
-    background-image: radial-gradient(circle at 2px 2px, hsl(var(--primary) / 0.03) 1px, transparent 0);
-    background-size: 15rem 15rem;
-    animation: drift 120s linear infinite;
+    background-image:
+      radial-gradient(circle at 2px 2px, hsl(0 85% 50% / 0.02) 1px, transparent 0),
+      radial-gradient(circle at 50% 50%, hsl(0 85% 50% / 0.01) 0%, transparent 70%);
+    background-size: 12rem 12rem, 100% 100%;
+    animation: drift 100s linear infinite;
     z-index: 0;
   }
 
   @keyframes drift {
     from {
-      background-position: 0 0;
+      background-position: 0 0, 0 0;
     }
 
     to {
-      background-position: 15rem 15rem;
+      background-position: 12rem 12rem, 0 0;
     }
   }
 
-  /* Premium Physical Button Utility */
+  /* ═══════════════════════════════════════════════ */
+  /*  F1 CHECKERED FLAG PATTERN                     */
+  /* ═══════════════════════════════════════════════ */
+  .checkered-pattern {
+    background-image:
+      linear-gradient(45deg, hsl(0 0% 15%) 25%, transparent 25%),
+      linear-gradient(-45deg, hsl(0 0% 15%) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, hsl(0 0% 15%) 75%),
+      linear-gradient(-45deg, transparent 75%, hsl(0 0% 15%) 75%);
+    background-size: 10px 10px;
+    background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
+  }
+
+  /* Checkered flag accent strip */
+  .checkered-strip {
+    background-image: repeating-linear-gradient(90deg,
+        hsl(0 0% 95%) 0px,
+        hsl(0 0% 95%) 6px,
+        hsl(0 0% 10%) 6px,
+        hsl(0 0% 10%) 12px);
+    height: 3px;
+    opacity: 0.5;
+  }
+
+  /* ═══════════════════════════════════════════════ */
+  /*  F1 KERB STRIPES                               */
+  /* ═══════════════════════════════════════════════ */
+  .kerb-stripe-top {
+    position: relative;
+  }
+
+  .kerb-stripe-top::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: repeating-linear-gradient(90deg,
+        hsl(var(--f1-red)) 0px,
+        hsl(var(--f1-red)) 12px,
+        hsl(var(--f1-white)) 12px,
+        hsl(var(--f1-white)) 24px);
+    opacity: 0.6;
+  }
+
+  .kerb-stripe-bottom {
+    position: relative;
+  }
+
+  .kerb-stripe-bottom::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: repeating-linear-gradient(90deg,
+        hsl(var(--f1-red)) 0px,
+        hsl(var(--f1-red)) 12px,
+        hsl(var(--f1-white)) 12px,
+        hsl(var(--f1-white)) 24px);
+    opacity: 0.6;
+  }
+
+  /* ═══════════════════════════════════════════════ */
+  /*  SECTOR TIMING COLORS                          */
+  /* ═══════════════════════════════════════════════ */
+  .sector-purple {
+    color: hsl(280 70% 60%);
+    text-shadow: 0 0 8px hsl(280 70% 60% / 0.4);
+  }
+
+  .sector-green {
+    color: hsl(145 70% 45%);
+    text-shadow: 0 0 8px hsl(145 70% 45% / 0.4);
+  }
+
+  .sector-yellow {
+    color: hsl(50 95% 55%);
+    text-shadow: 0 0 8px hsl(50 95% 55% / 0.4);
+  }
+
+  /* ═══════════════════════════════════════════════ */
+  /*  TIRE COMPOUND INDICATORS                      */
+  /* ═══════════════════════════════════════════════ */
+  .tire-soft {
+    background: hsl(var(--tire-soft));
+    box-shadow: 0 0 8px hsl(var(--tire-soft) / 0.4);
+  }
+
+  .tire-medium {
+    background: hsl(var(--tire-medium));
+    box-shadow: 0 0 8px hsl(var(--tire-medium) / 0.4);
+  }
+
+  .tire-hard {
+    background: hsl(var(--tire-hard));
+    box-shadow: 0 0 8px hsl(var(--tire-hard) / 0.2);
+  }
+
+  /* ═══════════════════════════════════════════════ */
+  /*  PREMIUM PHYSICAL BUTTON (F1 Racing Style)     */
+  /* ═══════════════════════════════════════════════ */
   .premium-btn-wrapper {
     all: unset;
     cursor: pointer;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
     position: relative;
     border-radius: 100em;
-    background-color: rgba(0, 0, 0, 0.75);
+    background-color: rgba(0, 0, 0, 0.85);
     box-shadow:
       -0.15em -0.15em 0.15em -0.075em rgba(5, 5, 5, 0.25),
       0.0375em 0.0375em 0.0675em 0 rgba(5, 5, 5, 0.1);
@@ -364,7 +639,7 @@
     z-index: 1;
     border-radius: inherit;
     padding: 0.8em 1.4em;
-    background-image: linear-gradient(135deg, rgba(230, 230, 230, 1), rgba(180, 180, 180, 1));
+    background-image: linear-gradient(135deg, hsl(0 85% 52%), hsl(0 80% 38%));
     transition: box-shadow 300ms ease, clip-path 250ms ease, background-image 250ms ease, transform 250ms ease;
     will-change: box-shadow, clip-path, background-image, transform;
     overflow: clip;
@@ -373,41 +648,42 @@
       0 0 0 0 inset rgba(5, 5, 5, 0.1),
       -0.05em -0.05em 0.05em 0 inset rgba(5, 5, 5, 0.25),
       0 0 0 0 inset rgba(5, 5, 5, 0.1),
-      0 0 0.05em 0.2em inset rgba(255, 255, 255, 0.25),
-      0.025em 0.05em 0.1em 0 inset rgba(255, 255, 255, 1),
-      0.12em 0.12em 0.12em inset rgba(255, 255, 255, 0.25),
+      0 0 0.05em 0.2em inset rgba(255, 255, 255, 0.15),
+      0.025em 0.05em 0.1em 0 inset rgba(255, 255, 255, 0.7),
+      0.12em 0.12em 0.12em inset rgba(255, 255, 255, 0.15),
       -0.075em -0.25em 0.25em 0.1em inset rgba(5, 5, 5, 0.25);
   }
 
   .premium-btn-wrapper:hover .btn-inner {
+    background-image: linear-gradient(135deg, hsl(0 90% 55%), hsl(0 85% 42%));
     clip-path: inset(clamp(1px, 0.0625em, 2px) clamp(1px, 0.0625em, 2px) clamp(1px, 0.0625em, 2px) clamp(1px, 0.0625em, 2px) round 100em);
     box-shadow:
       0.1em 0.15em 0.05em 0 inset rgba(5, 5, 5, 0.75),
       -0.025em -0.03em 0.05em 0.025em inset rgba(5, 5, 5, 0.5),
       0.25em 0.25em 0.2em 0 inset rgba(5, 5, 5, 0.5),
-      0 0 0.05em 0.5em inset rgba(255, 255, 255, 0.15),
+      0 0 0.05em 0.5em inset rgba(255, 255, 255, 0.1),
       0 0 0 0 inset rgba(255, 255, 255, 1),
-      0.12em 0.12em 0.12em inset rgba(255, 255, 255, 0.25),
+      0.12em 0.12em 0.12em inset rgba(255, 255, 255, 0.2),
       -0.075em -0.12em 0.2em 0.1em inset rgba(5, 5, 5, 0.25);
   }
 
   .premium-btn-wrapper .btn-inner span {
     position: relative;
     z-index: 4;
-    font-family: 'Outfit', sans-serif;
-    letter-spacing: 0.1em;
+    font-family: 'Orbitron', 'Outfit', sans-serif;
+    letter-spacing: 0.15em;
     font-weight: 800;
-    color: transparent;
-    background-image: linear-gradient(135deg, rgba(25, 25, 25, 1), rgba(75, 75, 75, 1));
-    -webkit-background-clip: text;
-    background-clip: text;
+    color: hsl(0 0% 100%);
+    background-image: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
     transition: transform 250ms ease;
     display: block;
     will-change: transform;
-    text-shadow: rgba(0, 0, 0, 0.1) 0 0 0.1em;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
     user-select: none;
     text-transform: uppercase;
-    font-size: 0.65rem;
+    font-size: 0.6rem;
   }
 
   .premium-btn-wrapper:active .btn-inner {
@@ -418,5 +694,94 @@
     opacity: 0.3;
     pointer-events: none;
     filter: grayscale(1);
+  }
+
+  /* ═══════════════════════════════════════════════ */
+  /*  F1 START LIGHTS COMPONENT                     */
+  /* ═══════════════════════════════════════════════ */
+  .start-lights {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .start-light-bulb {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: hsl(0 0% 15%);
+    border: 1px solid hsl(0 0% 25%);
+    transition: all 0.3s ease;
+  }
+
+  .start-light-bulb.active {
+    background: hsl(0 85% 50%);
+    box-shadow: 0 0 12px hsl(0 85% 50% / 0.6);
+    border-color: hsl(0 85% 65%);
+  }
+
+  .start-light-bulb.go {
+    background: hsl(145 70% 45%);
+    box-shadow: 0 0 12px hsl(145 70% 45% / 0.6);
+    border-color: hsl(145 70% 55%);
+  }
+
+  /* ═══════════════════════════════════════════════ */
+  /*  RACING STRIPE ACCENT                          */
+  /* ═══════════════════════════════════════════════ */
+  .racing-stripe {
+    position: relative;
+  }
+
+  .racing-stripe::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(to bottom,
+        transparent,
+        hsl(var(--f1-red) / 0.3),
+        hsl(var(--f1-red) / 0.1),
+        transparent);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ═══════════════════════════════════════════════ */
+  /*  FLAG STATUS INDICATOR                         */
+  /* ═══════════════════════════════════════════════ */
+  @keyframes flag-wave {
+
+    0%,
+    100% {
+      transform: rotate(-2deg);
+    }
+
+    50% {
+      transform: rotate(2deg);
+    }
+  }
+
+  .flag-indicator {
+    animation: flag-wave 2s ease-in-out infinite;
+    transform-origin: bottom left;
+  }
+
+  /* ═══════════════════════════════════════════════ */
+  /*  3D VISUALIZER UTILITIES                       */
+  /* ═══════════════════════════════════════════════ */
+  .canvas-overlay {
+    background: rgba(13, 17, 23, 0.4);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .orbital-hint {
+    background: linear-gradient(90deg, transparent, hsl(var(--primary)/0.1), transparent);
+    border-top: 1px solid hsl(var(--primary)/0.2);
+    border-bottom: 1px solid hsl(var(--primary)/0.2);
   }
 }

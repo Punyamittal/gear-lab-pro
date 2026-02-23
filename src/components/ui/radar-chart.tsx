@@ -1,14 +1,14 @@
 import React from 'react';
 import { Group } from '@visx/group';
-import { LetterFrequency } from '@visx/mock-data';
+import { letterFrequency } from '@visx/mock-data';
 import { scaleLinear } from '@visx/scale';
 import { Point } from '@visx/point';
 import { Line, LineRadial } from '@visx/shape';
 
-const orange = '#ff9933';
-export const pumpkin = '#f5810c';
-const silver = '#d9d9d9';
-export const chartBackground = '#FAF7E9';
+const red = '#dc2626';
+export const f1Red = '#dc2626';
+const silver = 'rgba(255, 255, 255, 0.1)';
+export const chartBackground = 'transparent';
 
 const degrees = 360;
 
@@ -55,8 +55,8 @@ export interface RadarChartComponentProps {
     height: number;
     margin?: { top: number; right: number; bottom: number; left: number };
     levels?: number;
-    data: LetterFrequency[];
-    getValue: (d: LetterFrequency) => number;
+    data: any[];
+    getValue: (d: any) => number;
 }
 
 export const RadarChart = ({
@@ -114,14 +114,14 @@ export const RadarChart = ({
                 {polygonDataPoints.pointString && (
                     <polygon
                         points={polygonDataPoints.pointString}
-                        fill={orange}
-                        fillOpacity={0.3}
-                        stroke={orange}
-                        strokeWidth={1}
+                        fill={f1Red}
+                        fillOpacity={0.2}
+                        stroke={f1Red}
+                        strokeWidth={2}
                     />
                 )}
                 {polygonDataPoints.points.map((point, i) => (
-                    <circle key={`radar-point-${i}`} cx={point.x} cy={point.y} r={4} fill={pumpkin} />
+                    <circle key={`radar-point-${i}`} cx={point.x} cy={point.y} r={3} fill={f1Red} stroke="white" strokeWidth={1} />
                 ))}
             </Group>
         </svg>

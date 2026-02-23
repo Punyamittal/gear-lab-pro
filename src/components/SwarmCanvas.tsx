@@ -50,11 +50,11 @@ const SwarmCanvas = ({ steps, isRunning }: SwarmCanvasProps) => {
 
     const draw = () => {
       // Clear with slight persistence for trails
-      ctx.fillStyle = 'rgba(5, 5, 10, 0.15)';
+      ctx.fillStyle = 'rgba(8, 8, 8, 0.15)';
       ctx.fillRect(0, 0, w, h);
 
-      // Sci-fi Grid with perspective effect
-      ctx.strokeStyle = 'rgba(30, 150, 255, 0.05)';
+      // Racing surface Grid
+      ctx.strokeStyle = 'rgba(220, 38, 38, 0.05)';
       ctx.lineWidth = 1;
 
       const gridSize = 40;
@@ -76,8 +76,8 @@ const SwarmCanvas = ({ steps, isRunning }: SwarmCanvasProps) => {
 
         // Update and draw trails
         step.particles.forEach((p, i) => {
-          const px = ((p.x - 1) / 3.5) * (w - 100) + 50;
-          const py = ((p.y - 1) / 3.5) * (h - 100) + 50;
+          const px = ((p.position[0] - 1) / 3.5) * (w - 100) + 50;
+          const py = ((p.position[1] - 1) / 3.5) * (h - 100) + 50;
 
           const trail = particleTrails.current.get(i) || [];
           trail.push({ x: px, y: py });
@@ -89,7 +89,7 @@ const SwarmCanvas = ({ steps, isRunning }: SwarmCanvasProps) => {
             ctx.beginPath();
             ctx.moveTo(trail[0].x, trail[0].y);
             const intensity = p.fitness / maxFitness;
-            ctx.strokeStyle = `rgba(255, 150, 0, ${0.1 + intensity * 0.2})`;
+            ctx.strokeStyle = `rgba(220, 38, 38, ${0.1 + intensity * 0.3})`;
             ctx.lineWidth = 1 + intensity * 2;
             for (let j = 1; j < trail.length; j++) {
               ctx.lineTo(trail[j].x, trail[j].y);
@@ -97,10 +97,10 @@ const SwarmCanvas = ({ steps, isRunning }: SwarmCanvasProps) => {
             ctx.stroke();
           }
 
-          // Glow Effect
+          // Force Glow Effect
           const intensity = p.fitness / maxFitness;
           const radial = ctx.createRadialGradient(px, py, 0, px, py, 6 + intensity * 15);
-          radial.addColorStop(0, `hsla(${20 + intensity * 40}, 100%, 50%, ${0.4 + intensity * 0.6})`);
+          radial.addColorStop(0, `hsla(0, 85%, 50%, ${0.4 + intensity * 0.6})`);
           radial.addColorStop(1, 'transparent');
 
           ctx.fillStyle = radial;
@@ -108,8 +108,8 @@ const SwarmCanvas = ({ steps, isRunning }: SwarmCanvasProps) => {
           ctx.arc(px, py, 6 + intensity * 15, 0, Math.PI * 2);
           ctx.fill();
 
-          // Core Node
-          ctx.fillStyle = `hsla(${30 + intensity * 30}, 100%, 70%, 1)`;
+          // Performance Node
+          ctx.fillStyle = `hsla(45, 90%, 55%, ${0.8 + intensity * 0.2})`;
           ctx.beginPath();
           ctx.arc(px, py, 1.5 + intensity * 2, 0, Math.PI * 2);
           ctx.fill();
@@ -129,7 +129,7 @@ const SwarmCanvas = ({ steps, isRunning }: SwarmCanvasProps) => {
 
         const sweepGrad = ctx.createLinearGradient(w / 2, h / 2, sweepX, sweepY);
         sweepGrad.addColorStop(0, 'transparent');
-        sweepGrad.addColorStop(1, 'rgba(0, 242, 255, 0.03)');
+        sweepGrad.addColorStop(1, 'rgba(220, 38, 38, 0.03)');
         ctx.fillStyle = sweepGrad;
         ctx.beginPath();
         ctx.moveTo(w / 2, h / 2);
@@ -143,7 +143,7 @@ const SwarmCanvas = ({ steps, isRunning }: SwarmCanvasProps) => {
         const time = Date.now() / 1000;
         const scanRadius = 20 + Math.sin(time * 4) * 5;
 
-        ctx.strokeStyle = '#00f2ff';
+        ctx.strokeStyle = '#eab308';
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.arc(bx, by, scanRadius, 0, Math.PI * 2);
@@ -163,10 +163,10 @@ const SwarmCanvas = ({ steps, isRunning }: SwarmCanvasProps) => {
         ctx.lineTo(bx, by + scanRadius + 10);
         ctx.stroke();
 
-        ctx.fillStyle = '#00f2ff';
+        ctx.fillStyle = '#eab308';
         ctx.font = 'bold 10px monospace';
-        ctx.fillText('GLOBAL_OPTIMUM_LOCK', bx + scanRadius + 15, by - 5);
-        ctx.fillText(`F: ${step.globalBestFitness.toFixed(2)}`, bx + scanRadius + 15, by + 10);
+        ctx.fillText('OPTIMAL_LINE_LOCK', bx + scanRadius + 15, by - 5);
+        ctx.fillText(`P_COEFF: ${step.globalBestFitness.toFixed(2)}`, bx + scanRadius + 15, by + 10);
       }
 
       animRef.current = requestAnimationFrame(draw);
@@ -182,20 +182,20 @@ const SwarmCanvas = ({ steps, isRunning }: SwarmCanvasProps) => {
         {/* Overlay HUD */}
         <div className="absolute top-6 left-6 z-10 flex flex-col gap-1 pointer-events-none">
           <div className="flex items-center gap-3">
-            <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse shadow-[0_0_10px_orange]" />
-            <h3 className="font-display text-[12px] tracking-[0.4em] text-orange-400 uppercase font-black">Swarm Intelligence Monitor</h3>
+            <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse shadow-[0_0_10px_red]" />
+            <h3 className="font-display text-[12px] tracking-[0.4em] text-f1-red uppercase font-black">Strategy Synthesis Monitor</h3>
           </div>
-          <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-widest opacity-60">Collective Particle Optimization v4.2</p>
+          <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-widest opacity-60">Collective Particle Optimization • v2.6</p>
         </div>
 
         <div className="absolute top-6 right-6 z-10 flex gap-4 pointer-events-none">
           <div className="bg-background/80 backdrop-blur-md px-4 py-2 rounded-lg border border-panel text-right">
-            <div className="text-[8px] text-muted-foreground font-mono uppercase">Iteration</div>
-            <div className="text-sm font-black font-mono text-orange-400">{step?.iteration || 0}<span className="text-[10px] text-muted-foreground ml-1">/{steps.length}</span></div>
+            <div className="text-[8px] text-muted-foreground font-mono uppercase">Lap Cycle</div>
+            <div className="text-sm font-black font-mono text-red-500">{step?.iteration || 0}<span className="text-[10px] text-muted-foreground ml-1">/{steps.length}</span></div>
           </div>
           <div className="bg-background/80 backdrop-blur-md px-4 py-2 rounded-lg border border-panel text-right">
-            <div className="text-[8px] text-muted-foreground font-mono uppercase">Convergence</div>
-            <div className="text-sm font-black font-mono text-cyan-400">
+            <div className="text-[8px] text-muted-foreground font-mono uppercase">Setup Confidence</div>
+            <div className="text-sm font-black font-mono text-yellow-500">
               {step ? (100 - (100 / (1 + step.globalBestFitness * 0.1))).toFixed(1) : '0.0'}%
             </div>
           </div>
@@ -208,10 +208,10 @@ const SwarmCanvas = ({ steps, isRunning }: SwarmCanvasProps) => {
 
         <div className="absolute bottom-6 left-6 z-10 flex flex-col gap-2 pointer-events-none">
           <div className="flex items-center gap-2 text-[10px] font-mono text-muted-foreground/80">
-            <div className="w-2 h-2 rounded-full bg-orange-500/50" /> Active Search Agents: {step?.particles.length || 0}
+            <div className="w-2 h-2 rounded-full bg-red-600/50" /> Virtual Race Agents: {step?.particles.length || 0}
           </div>
           <div className="flex items-center gap-2 text-[10px] font-mono text-muted-foreground/80">
-            <div className="w-2 h-2 rounded-full bg-cyan-400/50" /> Landscape Resolution: High
+            <div className="w-2 h-2 rounded-full bg-yellow-500/50" /> Telemetry Fidelity: High
           </div>
         </div>
       </div>
