@@ -12,24 +12,33 @@ const TelemetryConsole = ({ logs }: TelemetryConsoleProps) => {
   }, [logs]);
 
   return (
-    <div className="h-28 border-t border-panel bg-console px-3 py-2 overflow-y-auto scanline">
-      <div className="flex items-center gap-2 mb-1">
-        <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse-neon" />
-        <span className="font-display text-[9px] tracking-[0.2em] text-muted-foreground uppercase">
-          Telemetry Console
+    <div className="h-32 border-t border-panel bg-console/80 backdrop-blur-md px-4 py-3 overflow-y-auto custom-scrollbar relative scanline">
+      {/* Decorative side accent */}
+      <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/40" />
+
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse-neon shadow-[0_0_8px_hsl(var(--neon-green))]" />
+          <span className="font-display text-[10px] tracking-[0.2em] text-primary uppercase font-bold">
+            Live Telemetry Stream
+          </span>
+        </div>
+        <span className="text-[8px] font-mono text-muted-foreground uppercase tracking-widest bg-background/40 px-2 py-0.5 rounded border border-panel">
+          System: Active
         </span>
       </div>
-      <div className="space-y-0.5">
+
+      <div className="space-y-1">
         {logs.map((log, i) => (
           <div
             key={i}
-            className={`text-[11px] font-mono leading-tight ${
-              log.includes('═══') ? 'neon-text-cyan font-bold' :
-              log.includes('ERROR') ? 'text-neon-red' :
-              log.includes('HAPTIC') ? 'text-neon-orange' :
-              'text-muted-foreground'
-            }`}
+            className={`text-[10px] font-mono leading-relaxed border-l border-panel/30 pl-3 ${log.includes('═══') ? 'neon-text-cyan font-bold py-1' :
+                log.includes('ERROR') ? 'text-neon-red font-semibold' :
+                  log.includes('HAPTIC') ? 'text-neon-orange italic' :
+                    'text-muted-foreground/80'
+              }`}
           >
+            <span className="opacity-30 mr-2">[{new Date().toLocaleTimeString([], { hour12: false })}]</span>
             {log}
           </div>
         ))}

@@ -1,56 +1,77 @@
-// GearOpt X — Optimization Algorithms
-import { simulateAcceleration, DEFAULT_TORQUE_CURVE, type DrivetrainConfig, type EnginePoint } from './physics';
+import { simulateAcceleration, simulateSkidpad, simulateAutocross } from './physics';
+import { MASTER_DATASET, type MasterDataset } from './master-dataset';
 
 export interface OptimizationResult {
   gearRatios: number[];
   fitness: number;
   accelTime: number;
+  skidpadTime?: number;
+  autocrossTime?: number;
   generation?: number;
 }
 
-// Fitness = inverse of 0-75m time (lower time = higher fitness)
+// Multi-objective Fitness based on dataset weights
 export function evaluateFitness(
   gearRatios: number[],
-  config: DrivetrainConfig,
-  curve: EnginePoint[] = DEFAULT_TORQUE_CURVE
+  dataset: MasterDataset = MASTER_DATASET
 ): number {
-  const testConfig = { ...config, gearRatios };
-  const sim = simulateAcceleration(curve, testConfig, 75);
-  if (sim.length === 0) return 0;
-  const finalTime = sim[sim.length - 1].time;
-  if (finalTime <= 0 || finalTime > 20) return 0;
-  return 1 / finalTime;
+  const testDataset = {
+    ...dataset,
+    gearbox: { ...dataset.gearbox, gears: gearRatios }
+  };
+
+  const weights = dataset.fitness_weights;
+
+  // Acceleration part
+  const accelSim = simulateAcceleration(testDataset, 75);
+  const accelTime = accelSim.length > 0 ? accelSim[accelSim.length - 1].time : 20;
+
+  // Skidpad part
+  const skidpadTime = simulateSkidpad(testDataset);
+
+  // Autocross part
+  const autocrossTime = simulateAutocross(testDataset);
+
+  // Normalize and combine (smaller time is better, so use inverse or negative)
+  // Using 1/time approach
+  const fitness = (weights.acceleration * (1 / accelTime)) +
+    (weights.skidpad * (1 / skidpadTime)) +
+    (weights.autocross * (1 / autocrossTime));
+
+  return fitness * 10; // Scale for better visibility
 }
 
-function getAccelTime(gearRatios: number[], config: DrivetrainConfig, curve: EnginePoint[]): number {
-  const testConfig = { ...config, gearRatios };
-  const sim = simulateAcceleration(curve, testConfig, 75);
+function getAccelTime(gearRatios: number[], dataset: MasterDataset): number {
+  const testDataset = {
+    ...dataset,
+    gearbox: { ...dataset.gearbox, gears: gearRatios }
+  };
+  const sim = simulateAcceleration(testDataset, 75);
   if (sim.length === 0) return 99;
   return sim[sim.length - 1].time;
 }
 
-// Random gear ratio set
-function randomGears(numGears: number): number[] {
+// Random gear ratio set based on constraints
+function randomGears(dataset: MasterDataset): number[] {
+  const { constraints, max_gears } = dataset.gearbox;
   const gears: number[] = [];
-  for (let i = 0; i < numGears; i++) {
-    gears.push(1.0 + Math.random() * 3.5);
+  for (let i = 0; i < max_gears; i++) {
+    gears.push(constraints.min_ratio + Math.random() * (constraints.max_ratio - constraints.min_ratio));
   }
   return gears.sort((a, b) => b - a);
 }
 
 // ===== Classical Grid Search =====
 export function classicalOptimize(
-  config: DrivetrainConfig,
-  curve: EnginePoint[] = DEFAULT_TORQUE_CURVE,
+  dataset: MasterDataset = MASTER_DATASET,
   iterations: number = 500
 ): OptimizationResult {
-  let bestRatios = config.gearRatios;
-  let bestFitness = evaluateFitness(bestRatios, config, curve);
-  const numGears = config.gearRatios.length;
+  let bestRatios = dataset.gearbox.gears;
+  let bestFitness = evaluateFitness(bestRatios, dataset);
 
   for (let i = 0; i < iterations; i++) {
-    const candidate = randomGears(numGears);
-    const fitness = evaluateFitness(candidate, config, curve);
+    const candidate = randomGears(dataset);
+    const fitness = evaluateFitness(candidate, dataset);
     if (fitness > bestFitness) {
       bestFitness = fitness;
       bestRatios = candidate;
@@ -60,7 +81,7 @@ export function classicalOptimize(
   return {
     gearRatios: bestRatios.map(r => Math.round(r * 100) / 100),
     fitness: bestFitness,
-    accelTime: getAccelTime(bestRatios, config, curve),
+    accelTime: getAccelTime(bestRatios, dataset),
   };
 }
 
@@ -75,14 +96,12 @@ export interface AnnealingStep {
 }
 
 export function quantumAnnealingOptimize(
-  config: DrivetrainConfig,
-  curve: EnginePoint[] = DEFAULT_TORQUE_CURVE,
+  dataset: MasterDataset = MASTER_DATASET,
   maxIterations: number = 300,
   onStep?: (step: AnnealingStep) => void
 ): OptimizationResult {
-  const numGears = config.gearRatios.length;
-  let current = randomGears(numGears);
-  let currentFitness = evaluateFitness(current, config, curve);
+  let current = randomGears(dataset);
+  let currentFitness = evaluateFitness(current, dataset);
   let best = [...current];
   let bestFitness = currentFitness;
   let temperature = 2.0;
@@ -92,10 +111,10 @@ export function quantumAnnealingOptimize(
     // Perturb
     const neighbor = current.map(r => {
       const delta = (Math.random() - 0.5) * temperature * 0.5;
-      return Math.max(1.0, Math.min(4.5, r + delta));
+      return Math.max(dataset.gearbox.constraints.min_ratio, Math.min(dataset.gearbox.constraints.max_ratio, r + delta));
     }).sort((a, b) => b - a);
 
-    const neighborFitness = evaluateFitness(neighbor, config, curve);
+    const neighborFitness = evaluateFitness(neighbor, dataset);
     const delta = neighborFitness - currentFitness;
     const prob = delta > 0 ? 1 : Math.exp(delta / (temperature * 0.1));
     const accepted = Math.random() < prob;
@@ -127,7 +146,7 @@ export function quantumAnnealingOptimize(
   return {
     gearRatios: best.map(r => Math.round(r * 100) / 100),
     fitness: bestFitness,
-    accelTime: getAccelTime(best, config, curve),
+    accelTime: getAccelTime(best, dataset),
   };
 }
 
@@ -148,13 +167,12 @@ export interface SwarmStep {
 }
 
 export function swarmOptimize(
-  config: DrivetrainConfig,
-  curve: EnginePoint[] = DEFAULT_TORQUE_CURVE,
+  dataset: MasterDataset = MASTER_DATASET,
   numParticles: number = 50,
   maxIterations: number = 100,
   onStep?: (step: SwarmStep) => void
 ): OptimizationResult {
-  const numGears = config.gearRatios.length;
+  const numGears = dataset.gearbox.max_gears;
   const w = 0.7, c1 = 1.5, c2 = 1.5;
 
   const particles: SwarmParticle[] = [];
@@ -163,8 +181,8 @@ export function swarmOptimize(
 
   // Initialize
   for (let i = 0; i < numParticles; i++) {
-    const pos = randomGears(numGears);
-    const fitness = evaluateFitness(pos, config, curve);
+    const pos = randomGears(dataset);
+    const fitness = evaluateFitness(pos, dataset);
     particles.push({
       position: pos,
       velocity: Array(numGears).fill(0).map(() => (Math.random() - 0.5) * 0.5),
@@ -185,10 +203,10 @@ export function swarmOptimize(
         p.velocity[d] = w * p.velocity[d]
           + c1 * r1 * (p.bestPosition[d] - p.position[d])
           + c2 * r2 * (globalBest[d] - p.position[d]);
-        p.position[d] = Math.max(1.0, Math.min(4.5, p.position[d] + p.velocity[d]));
+        p.position[d] = Math.max(dataset.gearbox.constraints.min_ratio, Math.min(dataset.gearbox.constraints.max_ratio, p.position[d] + p.velocity[d]));
       }
       p.position.sort((a, b) => b - a);
-      p.fitness = evaluateFitness(p.position, config, curve);
+      p.fitness = evaluateFitness(p.position, dataset);
 
       if (p.fitness > p.bestFitness) {
         p.bestFitness = p.fitness;
@@ -217,7 +235,7 @@ export function swarmOptimize(
   return {
     gearRatios: globalBest.map(r => Math.round(r * 100) / 100),
     fitness: globalBestFitness,
-    accelTime: getAccelTime(globalBest, config, curve),
+    accelTime: getAccelTime(globalBest, dataset),
   };
 }
 
@@ -231,20 +249,19 @@ export interface GeneticStep {
 }
 
 export function geneticOptimize(
-  config: DrivetrainConfig,
-  curve: EnginePoint[] = DEFAULT_TORQUE_CURVE,
+  dataset: MasterDataset = MASTER_DATASET,
   popSize: number = 80,
   maxGenerations: number = 200,
   onStep?: (step: GeneticStep) => void
 ): OptimizationResult {
-  const numGears = config.gearRatios.length;
-  let population = Array.from({ length: popSize }, () => randomGears(numGears));
+  const numGears = dataset.gearbox.max_gears;
+  let population = Array.from({ length: popSize }, () => randomGears(dataset));
 
   let globalBest: number[] = [];
   let globalBestFitness = 0;
 
   for (let gen = 0; gen < maxGenerations; gen++) {
-    const fitnesses = population.map(ind => evaluateFitness(ind, config, curve));
+    const fitnesses = population.map(ind => evaluateFitness(ind, dataset));
     const best = Math.max(...fitnesses);
     const bestIdx = fitnesses.indexOf(best);
     const avg = fitnesses.reduce((a, b) => a + b, 0) / fitnesses.length;
@@ -287,7 +304,8 @@ export function geneticOptimize(
       // Mutation
       const mutated = child.map(g => {
         if (Math.random() < 0.15) {
-          return Math.max(1.0, Math.min(4.5, g + (Math.random() - 0.5) * 0.6));
+          const delta = (Math.random() - 0.5) * 0.6;
+          return Math.max(dataset.gearbox.constraints.min_ratio, Math.min(dataset.gearbox.constraints.max_ratio, g + delta));
         }
         return g;
       });
@@ -301,7 +319,8 @@ export function geneticOptimize(
   return {
     gearRatios: globalBest.map(r => Math.round(r * 100) / 100),
     fitness: globalBestFitness,
-    accelTime: getAccelTime(globalBest, config, curve),
+    accelTime: getAccelTime(globalBest, dataset),
     generation: maxGenerations,
   };
 }
+
