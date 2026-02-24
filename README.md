@@ -402,6 +402,49 @@ Remains:
 - Artifact-free
 
 This ensures uninterrupted engineering workflow during solver exploration.
+---
+
+# 📸 Platform Screenshots
+
+## 🧭 Track Data Module
+
+![Track Data](https://raw.githubusercontent.com/Punyamittal/gear-lab-pro/main/Screenshot%202026-02-24%20034030.png)
+
+---
+
+## 🏎️ Digital Twin Stream
+
+![Digital Twin](https://raw.githubusercontent.com/Punyamittal/gear-lab-pro/main/Screenshot%202026-02-24%20034105.png)
+
+---
+
+## ⚛️ Quantum Strategy Engine
+
+![Quantum Engine](https://raw.githubusercontent.com/Punyamittal/gear-lab-pro/main/Screenshot%202026-02-24%20034118.png)
+
+---
+
+## 🌀 Swarm Optimization Lab
+
+![Swarm Lab](https://raw.githubusercontent.com/Punyamittal/gear-lab-pro/main/Screenshot%202026-02-24%20034129.png)
+
+---
+
+## 🧬 DNA Evolutionary Lab
+
+![DNA Lab](https://raw.githubusercontent.com/Punyamittal/gear-lab-pro/main/Screenshot%202026-02-24%20034137.png)
+
+---
+
+## 🧠 Pit Wall AI Brief
+
+![Pit Wall AI](https://raw.githubusercontent.com/Punyamittal/gear-lab-pro/main/Screenshot%202026-02-24%20034153.png)
+
+---
+
+## 📊 Telemetry & Session History
+
+![Telemetry](https://raw.githubusercontent.com/Punyamittal/gear-lab-pro/main/Screenshot%202026-02-24%20034201.png)
 
 ---
 
