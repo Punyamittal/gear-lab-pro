@@ -31,9 +31,12 @@ This is a **Digital Race Engineer + Physics Engine + Optimization Lab**.
 
 For a detailed review of the engineering rigor and architecture, please explore:
 - **[Mathematical Model](./docs/MATHEMATICAL_MODEL.md)**: Newton-Euler dynamics and traction physics.
+- **[Benchmark Analysis](./docs/BENCHMARK_ANALYSIS.md)**: AI vs. Manual setup performance deltas.
 - **[AI System Architecture](./docs/AI_SYSTEM_ARCHITECTURE.md)**: Multi-solver hubs and Generative Reasoning.
-- **[UX & Accessibility Case Study](./docs/UX_CASE_STUDY.md)**: Auditory twins, haptics, and hands-free control.
-- **[Future Engineering Roadmap](./docs/FUTURE_ENGINEERING_ROADMAP.md)**: Vision for Pacejka modeling and GIS integration.
+- **[Compliance & Safety](./docs/COMPLIANCE_AND_SAFETY.md)**: Formula Student regulatory adherence.
+- **[Code Quality & QA](./docs/CODE_QUALITY_ASSURANCE.md)**: Production-grade patterns and reliability.
+- **[UX & Accessibility](./docs/UX_CASE_STUDY.md)**: Auditory twins, haptics, and hands-free control.
+- **[Future Roadmap](./docs/FUTURE_ENGINEERING_ROADMAP.md)**: Vision for Pacejka modeling and GIS integration.
 
 ---
 
