@@ -213,15 +213,46 @@ Hands-free garage interaction enabled via Web Speech API.
 
 ---
 
-# 🔊 Auditory Digital Twin
+# 🏟️ 3D Circuit Map & Model Viewer
 
+The platform includes a dedicated **Circuit** tab featuring:
+
+### 🔹 F1 Bahrain International Circuit (3D)
+- Interactive low-poly 3D model of the Bahrain Grand Prix circuit
+- Embedded via Sketchfab with full orbit, zoom, and pan controls
+- Track stats overlay: length (5.412 km), 15 turns, 2 DRS zones
+- Credit: [rickythunder on Sketchfab](https://sketchfab.com/rickythunder)
+
+### � F1 Chassis Model (`.glb`)
+- Formula 1 2012 monocoque chassis loaded as a glTF Binary asset
+- Stored locally at `public/models/formula_chassis.glb`
+- Interactive 3D viewer with orbit controls
+
+### 🔹 F1 Wheel Assembly (`.glb`)
+- Formula 1 2012 tire + rim unit loaded as a glTF Binary asset
+- Stored locally at `public/models/formula_1_2012_wheel.glb`
+- Real-time 3D inspection of wheel geometry
+
+These 3D assets allow engineers to inspect the car's physical components alongside the drivetrain optimization data.
+
+---
+
+# 🏎️ Auditory Digital Twin
+
+The platform features a high-fidelity **Digital Twin** of the **Aston Martin F1 AMR23**.
+
+### 🔹 3D Representation
+- Rendered using a local glTF Binary asset (`aston_martin_f1_amr23_2023.glb`)
+- Dynamic auto-rotation tied to simulation state
+- Interactive camera controls (orbit/zoom/pan)
+
+### 🔹 Acoustic Synthesis
 The engine sound is:
-
 - Synthesized in real time
 - Directly mapped to RPM from physics engine
 - Responsive to gear ratio changes
 
-Engineers can **hear** short vs tall gearing.
+Engineers can **hear** short vs tall gearing while observing the virtual car's dynamics.
 
 ---
 
@@ -259,16 +290,32 @@ Built using IndexedDB via SessionHistoryPanel.
 gear-lab-pro/
 │
 ├── public/
+│   ├── f1.png
+│   ├── models/
+│   │   ├── formula_chassis.glb
+│   │   └── formula_1_2012_wheel.glb
+│   └── robots.txt
 ├── src/
 │   ├── components/
+│   │   ├── CircuitViewer.tsx
+│   │   ├── DigitalTwin.tsx
+│   │   ├── GearOptDashboard.tsx
+│   │   ├── GeneticVisualizer.tsx
+│   │   ├── QuantumVisualizer.tsx
+│   │   ├── SwarmCanvas.tsx
+│   │   ├── ThreeSwarmVisualizer.tsx
+│   │   └── ui/
 │   ├── hooks/
 │   ├── lib/
 │   │   ├── physics.ts
 │   │   ├── optimizer.ts
 │   │   ├── gemini.ts
 │   │   ├── forceHeuristic.ts
-│   │   ├── drivetrain.ts
-│   │   └── eventSimulators.ts
+│   │   ├── audio-engine.ts
+│   │   ├── haptic-engine.ts
+│   │   ├── session-history.ts
+│   │   ├── voice-control.ts
+│   │   └── master-dataset.ts
 │   ├── styles/
 │   └── main.tsx
 │
@@ -298,7 +345,8 @@ src/lib/
 | Persistence | IndexedDB |
 | Voice | Web Speech API |
 | Audio | Dynamic RPM Synth |
-| Visualization | Canvas + Responsive UI |
+| Visualization | Canvas + Responsive UI + Sketchfab 3D |
+| 3D Models | glTF Binary (.glb) — Chassis + Wheel |
 
 ---
 

@@ -37,6 +37,7 @@ import { TreemapChart } from '@/components/ui/treemap-chart';
 import { StackedAreasChart } from '@/components/ui/stacked-areas';
 import AIAdvisor from '@/components/AIAdvisor';
 import { DigitalTwin } from '@/components/DigitalTwin';
+import { CircuitViewer } from '@/components/CircuitViewer';
 import { PremiumButton } from '@/components/ui/PremiumButton';
 import { letterFrequency } from '@visx/mock-data';
 
@@ -53,7 +54,7 @@ const GearOptDashboard = () => {
   const [simData, setSimData] = useState<SimPoint[]>([]);
   const [eventResults, setEventResults] = useState<{ accel: number; skidpad: number; autocross: number }>({ accel: 0, skidpad: 0, autocross: 0 });
   const [optimizedResult, setOptimizedResult] = useState<OptimizationResult | null>(null);
-  const [activeTab, setActiveTab] = useState<'sim' | 'quantum' | 'swarm' | 'dna' | 'analytics' | 'twin' | 'strategy'>('sim');
+  const [activeTab, setActiveTab] = useState<'sim' | 'quantum' | 'swarm' | 'dna' | 'analytics' | 'twin' | 'circuit' | 'strategy'>('sim');
   const [logs, setLogs] = useState<string[]>(['[SYSTEM] GearOpt X initialized.', '[SYSTEM] Master Dataset Loaded.']);
   const [isRunning, setIsRunning] = useState(false);
   const [replayProgress, setReplayProgress] = useState(0);
@@ -595,7 +596,7 @@ const GearOptDashboard = () => {
           <div className="flex border-b border-panel bg-panel/80 relative overflow-x-auto custom-scrollbar scrollbar-hide shrink-0 snap-x">
             {/* Checkered strip on top of tabs */}
             <div className="absolute top-0 left-0 right-0 checkered-strip" />
-            {(['sim', 'twin', 'quantum', 'swarm', 'dna', 'strategy', 'analytics'] as const).map((tab, idx) => (
+            {(['sim', 'twin', 'circuit', 'quantum', 'swarm', 'dna', 'strategy', 'analytics'] as const).map((tab, idx) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -609,7 +610,7 @@ const GearOptDashboard = () => {
                   {idx + 1}
                 </span>
                 <span className="whitespace-nowrap">
-                  {tab === 'sim' ? 'Track Data' : tab === 'twin' ? 'Digital Twin' : tab === 'quantum' ? 'Quantum' : tab === 'swarm' ? 'Swarm' : tab === 'dna' ? 'DNA Lab' : tab === 'analytics' ? 'Telemetry' : 'Pit Wall AI'}
+                  {tab === 'sim' ? 'Track Data' : tab === 'twin' ? 'Digital Twin' : tab === 'circuit' ? 'Circuit' : tab === 'quantum' ? 'Quantum' : tab === 'swarm' ? 'Swarm' : tab === 'dna' ? 'DNA Lab' : tab === 'analytics' ? 'Telemetry' : 'Pit Wall AI'}
                 </span>
               </button>
             ))}
@@ -617,7 +618,7 @@ const GearOptDashboard = () => {
 
           <div className="flex-1 overflow-y-auto p-3 lg:p-6 custom-scrollbar relative bg-[#0a0a0a]">
             {activeTab === 'twin' && (
-              <div className="flex flex-col gap-6 h-full">
+              <div className="flex flex-col gap-8 w-full">
                 <DigitalTwin
                   simData={simData}
                   progress={replayProgress}
@@ -642,6 +643,85 @@ const GearOptDashboard = () => {
                       colors={[CHART_COLORS.cyan]}
                     />
                   </ChartPanel>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'circuit' && (
+              <div className="flex flex-col gap-8 w-full">
+                <CircuitViewer isMuted={isMuted} />
+
+                {/* F1 Car Components Showcase */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* F1 Chassis 3D Model */}
+                  <div className="relative glass-panel rounded-2xl overflow-hidden border border-panel/50 bg-background/40 h-[1000px] flex flex-col">
+                    <div className="absolute top-4 left-4 z-20 pointer-events-none">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(220,38,38,0.5)]" />
+                        <h4 className="font-display text-[12px] tracking-[0.3em] text-red-500 uppercase font-black">F1 Chassis Model</h4>
+                      </div>
+                      <p className="text-[9px] font-mono text-muted-foreground mt-0.5 uppercase tracking-widest opacity-60">Formula 1 2012 • Monocoque Assembly</p>
+                    </div>
+                    <div className="flex-1 bg-[#050505] relative">
+                      {/* @ts-ignore - model-viewer is a web component */}
+                      <model-viewer
+                        src="/models/formula_chassis.glb"
+                        alt="F1 Chassis 3D Model"
+                        auto-rotate
+                        camera-controls
+                        shadow-intensity="1"
+                        environment-image="neutral"
+                        style={{ width: '100%', height: '100%', backgroundColor: '#050505' }}
+                      />
+                      <div className="absolute bottom-4 left-4 right-4 z-20 pointer-events-none">
+                        <div className="bg-background/80 backdrop-blur-md px-4 py-2 rounded-lg border border-panel/50 flex justify-between items-center">
+                          <div>
+                            <div className="text-[8px] text-muted-foreground font-mono uppercase">Asset</div>
+                            <div className="text-[10px] text-foreground font-bold font-mono">formula_chassis.glb</div>
+                          </div>
+                          <div>
+                            <div className="text-[8px] text-muted-foreground font-mono uppercase">Format</div>
+                            <div className="text-[10px] text-green-400 font-bold font-mono">glTF Binary</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* F1 Wheel 3D Model */}
+                  <div className="relative glass-panel rounded-2xl overflow-hidden border border-panel/50 bg-background/40 h-[1000px] flex flex-col">
+                    <div className="absolute top-4 left-4 z-20 pointer-events-none">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
+                        <h4 className="font-display text-[12px] tracking-[0.3em] text-cyan-500 uppercase font-black">F1 Wheel Assembly</h4>
+                      </div>
+                      <p className="text-[9px] font-mono text-muted-foreground mt-0.5 uppercase tracking-widest opacity-60">Formula 1 2012 • Tire + Rim Unit</p>
+                    </div>
+                    <div className="flex-1 bg-[#050505] relative">
+                      {/* @ts-ignore - model-viewer is a web component */}
+                      <model-viewer
+                        src="/models/formula_1_2012_wheel.glb"
+                        alt="F1 Wheel 3D Model"
+                        auto-rotate
+                        camera-controls
+                        shadow-intensity="1"
+                        environment-image="neutral"
+                        style={{ width: '100%', height: '100%', backgroundColor: '#050505' }}
+                      />
+                      <div className="absolute bottom-4 left-4 right-4 z-20 pointer-events-none">
+                        <div className="bg-background/80 backdrop-blur-md px-4 py-2 rounded-lg border border-panel/50 flex justify-between items-center">
+                          <div>
+                            <div className="text-[8px] text-muted-foreground font-mono uppercase">Asset</div>
+                            <div className="text-[10px] text-foreground font-bold font-mono">formula_1_2012_wheel.glb</div>
+                          </div>
+                          <div>
+                            <div className="text-[8px] text-muted-foreground font-mono uppercase">Format</div>
+                            <div className="text-[10px] text-green-400 font-bold font-mono">glTF Binary</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}

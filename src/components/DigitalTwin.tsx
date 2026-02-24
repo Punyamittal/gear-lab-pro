@@ -16,14 +16,17 @@ export const DigitalTwin = ({ simData, progress, isRunning, isMuted }: DigitalTw
     }, [simData, progress]);
 
     return (
-        <div className="relative w-full h-[850px] glass-panel rounded-2xl overflow-hidden bg-background/40 border border-panel/50 group flex flex-col">
+        <div
+            className="relative w-full glass-panel rounded-3xl border border-panel/50 group flex flex-col"
+            style={{ minHeight: '1000px', height: '1000px', backgroundColor: '#0a0a0a' }}
+        >
             {/* Header Overlay */}
-            <div className="absolute top-6 left-6 z-20 pointer-events-none">
-                <div className="flex items-center gap-3">
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_12px_rgba(220,38,38,0.5)]" />
-                    <h3 className="font-display text-[14px] tracking-[0.4em] text-red-500 uppercase font-black">Digital Twin Stream</h3>
+            <div className="absolute top-8 left-8 z-30 pointer-events-none">
+                <div className="flex items-center gap-4">
+                    <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse shadow-[0_0_15px_rgba(220,38,38,0.6)]" />
+                    <h3 className="font-display text-[18px] tracking-[0.5em] text-red-500 uppercase font-black">Digital Twin Stream</h3>
                 </div>
-                <p className="text-[10px] font-mono text-muted-foreground mt-1 uppercase tracking-widest opacity-60">High-Fidelity Virtual Representation • F1 Prototype</p>
+                <p className="text-[12px] font-mono text-muted-foreground mt-2 uppercase tracking-widest opacity-70">High-Fidelity Virtual Representation • Aston Martin F1 AMR23</p>
             </div>
 
             <div className="absolute top-6 right-6 z-20 flex flex-col items-end gap-2 text-right pointer-events-none">
@@ -39,12 +42,33 @@ export const DigitalTwin = ({ simData, progress, isRunning, isMuted }: DigitalTw
 
             {/* Main 3D Model Viewport */}
             <div className="flex-1 relative w-full h-full bg-[#050505]">
-                <iframe
-                    title="Aston Martin F1 AMR23 2023"
-                    allow="autoplay; fullscreen; xr-spatial-tracking"
-                    src={`https://sketchfab.com/models/f6ba825a43b146a9b669934a4e1fd529/embed?autostart=1&camera=0&preload=1&transparent=1&ui_hint=0&ui_theme=dark&sound=${isMuted ? 0 : 1}`}
-                    className="w-full h-full border-0"
-                />
+                {/* @ts-ignore - model-viewer is a web component */}
+                <model-viewer
+                    src="/models/aston_martin_f1_amr23_2023.glb"
+                    alt="Aston Martin F1 AMR23"
+                    auto-rotate
+                    rotation-per-second={isRunning ? "30deg" : "15deg"}
+                    camera-controls
+                    shadow-intensity="2"
+                    shadow-softness="0.5"
+                    environment-image="neutral"
+                    exposure="2.5"
+                    camera-orbit="auto 75deg auto"
+                    min-camera-orbit="auto 0deg 0%"
+                    max-camera-orbit="auto 180deg infinity"
+                    field-of-view="auto"
+                    loading="eager"
+                    bounds="tight"
+                    interpolation-decay="200"
+                    style={{ width: '100%', height: '100%', minHeight: '800px', backgroundColor: '#0a0a0a' }}
+                >
+                    <div slot="poster" className="absolute inset-0 flex items-center justify-center bg-[#0a0a0a] text-red-500 font-mono text-[14px] uppercase tracking-[0.5em]">
+                        <div className="flex flex-col items-center gap-6">
+                            <div className="w-12 h-12 rounded-full border-4 border-red-500/20 border-t-red-500 animate-spin" />
+                            <span className="animate-pulse">Active Stream: Aston Martin F1</span>
+                        </div>
+                    </div>
+                </model-viewer>
             </div>
 
             {/* Integrated Telemetry Cards (Overlaid at bottom) */}
