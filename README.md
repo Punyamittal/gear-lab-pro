@@ -31,10 +31,12 @@ This is a **Digital Race Engineer + Physics Engine + Optimization Lab**.
 
 For a detailed review of the engineering rigor and architecture, please explore:
 - **[Mathematical Model](./docs/MATHEMATICAL_MODEL.md)**: Newton-Euler dynamics and traction physics.
+- **[Nomenclature & Symbols](./docs/NOMENCLATURE.md)**: Complete glossary of all physics and racing terms.
 - **[Benchmark Analysis](./docs/BENCHMARK_ANALYSIS.md)**: AI vs. Manual setup performance deltas.
 - **[AI System Architecture](./docs/AI_SYSTEM_ARCHITECTURE.md)**: Multi-solver hubs and Generative Reasoning.
 - **[Compliance & Safety](./docs/COMPLIANCE_AND_SAFETY.md)**: Formula Student regulatory adherence.
 - **[Code Quality & QA](./docs/CODE_QUALITY_ASSURANCE.md)**: Production-grade patterns and reliability.
+- **[Accessibility](./docs/ACCESSIBILITY.md)**: WCAG 2.1 compliance and assistive technology support.
 - **[UX & Accessibility](./docs/UX_CASE_STUDY.md)**: Auditory twins, haptics, and hands-free control.
 - **[Future Roadmap](./docs/FUTURE_ENGINEERING_ROADMAP.md)**: Vision for Pacejka modeling and GIS integration.
 
