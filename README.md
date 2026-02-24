@@ -38,7 +38,6 @@ For a detailed review of the engineering rigor and architecture, please explore:
 ---
 
 # 🏗️ System Architecture
-
 ## 🔷 High-Level Block Architecture
 
 ```mermaid
