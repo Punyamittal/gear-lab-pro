@@ -1,7 +1,10 @@
 
 # 🏎️ Gear Lab Pro  
 ## Formula Student Drivetrain Optimization Platform
-
+<p align="center">
+  <img src="https://i.pinimg.com/originals/ff/47/b9/ff47b943483aa857a812629c7f3eda5a.gif" alt="Gear Dynamics Animation" />
+</p>
+<br>
 🌐 **Live Demo:** https://spectacular-tartufo-dee682.netlify.app/
 
 ---
