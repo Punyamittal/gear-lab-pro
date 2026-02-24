@@ -1,26 +1,29 @@
 
 # 🏎️ Gear Lab Pro  
 ## Formula Student Drivetrain Optimization Platform
+
 <p align="center">
-  <img src="https://i.pinimg.com/originals/ff/47/b9/ff47b943483aa857a812629c7f3eda5a.gif" alt="Gear Dynamics Animation" />
+  <img src="https://i.pinimg.com/originals/ff/47/b9/ff47b943483aa857a812629c7f3eda5a.gif" alt="Gear Dynamics Animation" width="600"/>
 </p>
-<br>
-🌐 **Live Demo:** https://spectacular-tartufo-dee682.netlify.app/
+
+🌐 **Live Demo:**  
+https://spectacular-tartufo-dee682.netlify.app/
 
 ---
 
-## 📌 Overview
+# 📌 Overview
 
-**Gear Lab Pro** is an advanced drivetrain optimization platform built specifically for **Formula Student teams**.
+Gear Lab Pro is a physics-grounded drivetrain optimization platform built specifically for **Formula Student teams**.
 
-It solves the real engineering problem of:
+It combines:
+- Multi-algorithm gear optimization
+- Deterministic racing physics
+- Traction constraint enforcement
+- Drivability density logic
+- AI + offline fallback intelligence
+- Mobile + voice-enabled interaction
 
-- Maximizing acceleration
-- Maintaining traction limits
-- Preserving drivability
-- Optimizing aggregate dynamic event performance
-
-This platform combines **racing physics**, **multi-algorithm optimization**, and **AI-driven recommendations** to generate mathematically provable gear ratio configurations.
+This is a **Digital Race Engineer + Physics Engine + Optimization Lab**.
 
 ---
 
@@ -29,22 +32,21 @@ This platform combines **racing physics**, **multi-algorithm optimization**, and
 ## 🔷 High-Level Block Architecture
 
 ```mermaid
-graph LR
+flowchart LR
+    A[Engine Torque Map] --> D[Optimization Engine]
+    B[Vehicle Parameters] --> D
+    C[Tyre Friction Model] --> D
 
-A[Engine Torque Map] --> D[Optimization Engine]
-B[Vehicle Parameters] --> D
-C[Tyre Friction Data] --> D
+    D --> E[Acceleration Simulator]
+    D --> F[Skidpad Simulator]
+    D --> G[Autocross Simulator]
 
-D --> E[Acceleration Simulator]
-D --> F[Skidpad Simulator]
-D --> G[Autocross Simulator]
+    E --> H[Performance Aggregator]
+    F --> H
+    G --> H
 
-E --> H[Performance Aggregator]
-F --> H
-G --> H
-
-H --> I[Gemini Pit Wall Advisor]
-I --> J[Final Optimized Gear Specification]
+    H --> I[Gemini Pit Wall Advisor]
+    I --> J[Final Ratio Specification]
 ```
 
 ---
@@ -52,127 +54,192 @@ I --> J[Final Optimized Gear Specification]
 ## 🔷 Optimization Engine Architecture
 
 ```mermaid
-graph TD
+flowchart TD
+    A[User Inputs] --> B[Solver Race Engine]
 
-A[Input Parameters] --> B{Solver Race Engine}
+    B --> C1[Genetic Algorithm]
+    B --> C2[Particle Swarm Optimization]
+    B --> C3[Simulated Annealing]
 
-B --> C1[Genetic Algorithm]
-B --> C2[Particle Swarm Optimization]
-B --> C3[Simulated Annealing]
+    C1 --> D[Candidate Ratios]
+    C2 --> D
+    C3 --> D
 
-C1 --> D[Candidate Ratio Set]
-C2 --> D
-C3 --> D
-
-D --> E[Physics Validator]
-E --> F[Traction Constraint Check]
-F --> G[Score Evaluation]
-G --> H[Best Ratio Output]
+    D --> E[Physics Validator]
+    E --> F[Traction Constraint]
+    F --> G[Drivability Density Check]
+    G --> H[Score Evaluation]
+    H --> I[Best Configuration Output]
 ```
 
 ---
 
-## 🔷 Simulation Data Flow (Sequence Diagram)
+## 🔷 Simulation Data Flow
 
 ```mermaid
 sequenceDiagram
+    participant User
+    participant UI
+    participant Optimizer
+    participant Physics
+    participant Events
+    participant AI
 
-User->>UI: Enter Vehicle Parameters
-UI->>Optimizer: Run Solver Race
-Optimizer->>Physics Engine: Evaluate Ratios
-Physics Engine->>Event Simulators: Run Accel/Skidpad/Autocross
-Event Simulators->>Optimizer: Return Times
-Optimizer->>Gemini AI: Explain Results
-Gemini AI->>UI: Strategy Recommendation
+    User->>UI: Enter Parameters
+    UI->>Optimizer: Run Solver
+    Optimizer->>Physics: Evaluate Ratios
+    Physics->>Events: Run Event Sims
+    Events->>Optimizer: Return Times
+    Optimizer->>AI: Generate Strategy
+    AI->>UI: Display Insights
 ```
 
 ---
 
 # 📊 Performance Modeling Charts
 
-## 🔷 Tractive Effort vs Velocity
+## 🔷 Tractive Effort Distribution
 
 ```mermaid
-
-pie title Relative Tractive Effort Contribution
+pie title Tractive Effort Contribution Across Gears
     "Gear 1 Peak Zone" : 35
-    "Gear 2 Mid Accel" : 30
+    "Gear 2 Mid Acceleration" : 30
     "Gear 3 High Speed Pull" : 20
     "Traction Limited Region" : 15
-
 ```
 
 ---
 
-## 🔷 Acceleration Time Comparison
+## 🔷 Event Time Weight Distribution
 
 ```mermaid
+pie title Weighted Event Contribution to Optimization
+    "0-75m Acceleration" : 40
+    "Skidpad" : 25
+    "Autocross" : 35
+```
 
-pie title 0-75m Time Share Comparison
-    "Baseline Setup (4.21s)" : 421
-    "Optimized Setup (3.87s)" : 387
+---
+
+## 🔷 Acceleration Setup Comparison
+
+```mermaid
+pie title Relative Performance Comparison (Lower = Better)
+    "Baseline (4.21s)" : 421
+    "Optimized (3.87s)" : 387
     "Aggressive Final (3.79s)" : 379
-
 ```
 
 ---
 
 # 🔬 Engineering Model
 
-The system is grounded in deterministic racing physics.
-
 ### Tractive Force
 
-\[
-F_t = \frac{T_e \cdot \gamma_{total} \cdot \eta}{r_w}
-\]
+F_t = (T_e × γ_total × η) / r_w
 
 ### Traction Limit
 
-\[
-F_{max} = \mu \cdot (W_{static} + \Delta W_{dynamic} + F_{downforce})
-\]
+F_max = μ × (W_static + ΔW_dynamic + F_downforce)
 
-### Constraint Applied
+### Enforced Constraint
 
-\[
-F_t \leq F_{max}
-\]
+F_t ≤ F_max
 
-Wheel torque is clamped to the traction envelope to eliminate wheelspin and maximize usable acceleration.
+Wheel torque is always clamped to the traction envelope.
 
 ---
 
-# 🧠 Core Modules
+# 🛡️ Resilience Layer — Force Heuristic Fallback
 
-## 1️⃣ Ratio Optimization Hub
-- Simultaneous Primary, Gear & Final Drive tuning
-- Multi-algorithm solver competition
-- Global optimum detection
+If Gemini API fails due to:
+- Rate limits
+- 404
+- Network instability
 
-## 2️⃣ Tractive Effort Mapping
-- Gear crossover visualization
-- Optimal shift RPM detection
-- Dead-zone elimination
+The system activates:
 
-## 3️⃣ Traction Preservation Engine
-- Dynamic weight transfer modeling
-- Torque limiting logic
-- Friction circle compliance
+### 🔹 Force Heuristic Mode
 
-## 4️⃣ Event Simulation Engine
-- 0–75m Acceleration
-- 8m Skidpad steady-state model
-- Autocross multi-radius simulation
+It:
+- Detects traction saturation
+- Evaluates shift overlap
+- Applies gear spacing logic
+- Generates deterministic race insights
 
-## 5️⃣ AI Pit Wall Advisor
-- Powered by Google Gemini
-- Strategic reasoning layer
-- Explains why a ratio wins
+This makes the system **trackside safe and competition-resilient**.
 
 ---
 
-# 📁 Project Structure
+# 📱 Mobile Pit Wall Interface
+
+Built using Shadcn-UI Sheet components.
+
+Features:
+- Tablet-friendly dashboard
+- Swipe-based configuration access
+- Compact telemetry panel
+- Trackside quick adjustments
+
+Engineers can operate from phones and tablets in the garage.
+
+---
+
+# 🎙️ Voice Control Commands
+
+Supported Commands:
+
+- "Start Run"
+- "Reset Baseline"
+- "Mute Audio"
+- "Go Mute"
+- "Run Acceleration"
+
+Hands-free garage interaction enabled via Web Speech API.
+
+---
+
+# 🔊 Auditory Digital Twin
+
+The engine sound is:
+
+- Synthesized in real time
+- Directly mapped to RPM from physics engine
+- Responsive to gear ratio changes
+
+Engineers can **hear** short vs tall gearing.
+
+---
+
+# 🧪 Drivability Density Constraint
+
+The solver penalizes:
+
+- Excessive RPM drop between gears
+- Unrealistic micro-ratio stacking
+- Physically infeasible shift spacing
+
+Ensures the solution is:
+
+✔ Fast  
+✔ Drivable  
+✔ Mechanically realistic  
+
+---
+
+# 💾 IndexedDB Session Persistence
+
+All optimization runs are stored locally.
+
+- Session history retained after browser close
+- Historical comparison enabled
+- Acts as a local performance database
+
+Built using IndexedDB via SessionHistoryPanel.
+
+---
+
+# 📂 Accurate Project Structure
 
 ```
 gear-lab-pro/
@@ -180,121 +247,152 @@ gear-lab-pro/
 ├── public/
 ├── src/
 │   ├── components/
-│   ├── engine/
-│   ├── simulations/
-│   ├── optimization/
-│   ├── physics/
-│   └── utils/
+│   ├── hooks/
+│   ├── lib/
+│   │   ├── physics.ts
+│   │   ├── optimizer.ts
+│   │   ├── gemini.ts
+│   │   ├── forceHeuristic.ts
+│   │   ├── drivetrain.ts
+│   │   └── eventSimulators.ts
+│   ├── styles/
+│   └── main.tsx
 │
 ├── index.html
-├── package.json
 ├── vite.config.ts
 ├── tailwind.config.ts
+├── package.json
 └── README.md
 ```
+
+Core logic resides inside:
+
+src/lib/
 
 ---
 
 # 💻 Tech Stack
 
 | Layer | Technology |
-|-------|------------|
+|--------|------------|
 | Frontend | React 18 + Vite |
 | Language | TypeScript |
 | Styling | Tailwind CSS + ShadCN |
-| Visualization | Three.js + Canvas |
-| Optimization | Genetic + PSO + Annealing |
-| AI Layer | Google Gemini Pro |
+| Optimization | GA + PSO + Annealing |
+| AI Layer | Google Gemini |
+| Fallback | Deterministic Heuristic Engine |
+| Persistence | IndexedDB |
+| Voice | Web Speech API |
+| Audio | Dynamic RPM Synth |
+| Visualization | Canvas + Responsive UI |
 
 ---
 
 # 🚀 Installation
-
-### Using Bun
-
-```bash
-bun install
-bun run dev
-```
-
-### Using npm
 
 ```bash
 npm install
 npm run dev
 ```
 
----
-
-# 🧪 Build for Production
+or
 
 ```bash
-npm run build
+bun install
+bun run dev
 ```
-
----
-
-# ⚙️ Configuration
-
-Modify engine and vehicle parameters inside:
-
-```
-src/config/vehicle.ts
-src/config/engine.ts
-```
-
-Update:
-- Mass
-- CG height
-- Wheel radius
-- Torque curve
-- Friction coefficients
 
 ---
 
 # 🏁 Optimization Objective
 
-The solver minimizes:
+Minimize:
 
-```
-Total Event Score Time =
-(Acceleration Time Weight) +
-(Skidpad Time Weight) +
-(Autocross Time Weight)
-```
+Weighted(Acceleration Time)  
++ Weighted(Skidpad Time)  
++ Weighted(Autocross Time)
 
 Subject to:
-- Traction constraints
-- Engine RPM limits
-- Drivability spacing logic
+
+- Traction envelope
+- RPM limits
+- Drivability density
+- Gear spacing feasibility
+- Mechanical realism
 
 ---
 
-# 📈 Why This Wins Competitions
+# 🏎️ Competition Ready
 
 ✔ Physics-backed  
-✔ Constraint-aware  
-✔ Multi-solver global search  
-✔ Event-specific optimization  
-✔ AI explanation layer  
-✔ Competition-focused scoring  
+✔ Offline-resilient  
+✔ Voice-enabled  
+✔ Mobile pit wall mode  
+✔ Auditory digital twin  
+✔ Persistent optimization history  
 
 ---
 
-# 🔮 Future Roadmap
-
-- Aerodynamic downforce integration
-- Launch control modeling
-- Tire temperature modeling
-- Real telemetry import
-- Cloud solver cluster
+# 🏁 Advanced Features
 
 ---
 
-# 🤝 Contributing
+## 👻 Baseline Ghosting (A/B Testing)
 
-Pull requests are welcome.  
-For major changes, open an issue first to discuss improvements.
+Use the **"Lock Baseline"** command to freeze any configuration as a visual **Ghost Layer**.
+
+This enables:
+
+- Real-time A/B comparison between two ratio setups
+- Overlay visualization inside the 3D Digital Twin
+- Immediate identification of:
+  - Acceleration gains
+  - Traction improvements
+  - Shift overlap differences
+  - Time delta advantages
+
+The Ghost system allows engineers to visually prove performance improvements before committing to mechanical changes.
+
+---
+
+## 📳 Haptic-Tactile Feedback
+
+The platform includes synchronized **Haptic Pulses** triggered by:
+
+- Gear shifts
+- Traction break events
+- Torque saturation moments
+- Launch threshold transitions
+
+This creates a multi-sensory feedback loop where engineers can:
+
+- Feel shift-shock intensity
+- Detect traction instability
+- Experience drivetrain aggressiveness
+
+The goal is to transform telemetry into **tactile engineering intuition**.
+
+---
+
+## 🛡️ Fail-Safe Optimization (Quantum Visualizer Stability)
+
+The **Quantum Visualizer** integrates non-linear stabilization algorithms to maintain:
+
+- 100% rendering uptime
+- Stable visual feedback during high-entropy annealing
+- Error-free solver transitions
+
+Even during aggressive optimization sweeps, the:
+
+### 🔹 “Quantum Eye” Visualization Layer
+
+Remains:
+- Frame-stable
+- Numerically safe
+- GPU-efficient
+- Artifact-free
+
+This ensures uninterrupted engineering workflow during solver exploration.
 
 ---
 
@@ -304,7 +402,8 @@ MIT License
 
 ---
 
-# 🏎️ Built for Formula Student Teams
+# 🏁 Built for Formula Student Teams
 
-**Mathematically Provable Performance.  
-Engineered for the Track.**
+Mathematically Provable.  
+Competition Resilient.  
+Track Ready.
