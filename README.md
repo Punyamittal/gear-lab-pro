@@ -1,514 +1,218 @@
+![Project Banner](docs/readme-agent/banner.svg)
 
-# 🏎️ Gear Lab Pro  
-## Formula Student Drivetrain Optimization Platform
+# Gear Lab Pro: Bi-Level AI Gearbox Optimization and Simulation Platform
 
-<p align="center">
-  <img src="https://i.pinimg.com/originals/ff/47/b9/ff47b943483aa857a812629c7f3eda5a.gif" alt="Gear Dynamics Animation" width="600"/>
-</p>
+A sophisticated, data-intensive web application utilizing a bi-level AI architecture to simulate, optimize, and reason about complex mechanical systems, specifically gearboxes.
 
-🌐 **Live Demo:**  
-https://spectacular-tartufo-dee682.netlify.app/
+## Overview
 
----
+The project is a highly advanced simulation and optimization platform designed to model and analyze mechanical systems, likely gearboxes. It employs a complex, multi-agent, bi-level AI architecture. The system separates low-level, deterministic physics simulation (the 'Solver Race Hub') from high-level, contextual reasoning (the 'Pit Wall Reasoning' layer, powered by an LLM). The entire user experience is built on a modern React/Next.js stack, emphasizing real-time data visualization, complex state management, and 3D rendering.
 
-# 📌 Overview
+## Problem
 
-Gear Lab Pro is a physics-grounded drivetrain optimization platform built specifically for **Formula Student teams**.
+The core problem addressed is the need for a comprehensive, intelligent system that can not only simulate the physical performance of a mechanical system (like a gearbox) under various constraints but can also reason about failures, predict anomalies, and suggest optimal configurations using both deterministic physics models and advanced large language model (LLM) reasoning.
 
-It combines:
-- Multi-algorithm gear optimization
-- Deterministic racing physics
-- Traction constraint enforcement
-- Drivability density logic
-- AI + offline fallback intelligence
-- Mobile + voice-enabled interaction
+## Solution
 
-This is a **Digital Race Engineer + Physics Engine + Optimization Lab**.
+The solution implements a two-tiered AI system: 1) A low-level 'Solver Race Hub' that uses a physics sandbox for deterministic validation and convergence testing. 2) A high-level 'Pit Wall Reasoning' layer that ingests the kinematic state, anomaly reports, and constraints, and uses an LLM (Google Gemini Pro) to provide contextual, human-like reasoning and suggestions. The entire process is managed via a robust, client-side state machine.
 
----
+## Key Features
 
-## 📚 Technical Documentation (Evaluation Deep Dive)
+- Bi-level AI Architecture: Separating deterministic physics simulation from contextual LLM reasoning.
+- Physics Sandbox Simulation: Performing deterministic validation and constraint checking on mechanical systems.
+- LLM Integration: Utilizing Google Gemini Pro for advanced, contextual reasoning and anomaly detection.
+- Real-time Data Visualization: Displaying complex metrics, performance curves, and system states using dedicated charting libraries.
+- 3D Visualization: Rendering the mechanical system (gearbox/track) in a three-dimensional environment.
+- Advanced State Management: Handling asynchronous, multi-agent solver states using TanStack Query.
+- Persistent Memory: Utilizing IndexedDB for long-term storage of simulation results and learned states.
 
-For a detailed review of the engineering rigor and architecture, please explore:
-- **[Mathematical Model](./docs/MATHEMATICAL_MODEL.md)**: Newton-Euler dynamics and traction physics.
-- **[Nomenclature & Symbols](./docs/NOMENCLATURE.md)**: Complete glossary of all physics and racing terms.
-- **[Benchmark Analysis](./docs/BENCHMARK_ANALYSIS.md)**: AI vs. Manual setup performance deltas.
-- **[AI System Architecture](./docs/AI_SYSTEM_ARCHITECTURE.md)**: Multi-solver hubs and Generative Reasoning.
-- **[Compliance & Safety](./docs/COMPLIANCE_AND_SAFETY.md)**: Formula Student regulatory adherence.
-- **[Code Quality & QA](./docs/CODE_QUALITY_ASSURANCE.md)**: Production-grade patterns and reliability.
-- **[Accessibility](./docs/ACCESSIBILITY.md)**: WCAG 2.1 compliance and assistive technology support.
-- **[UX & Accessibility](./docs/UX_CASE_STUDY.md)**: Auditory twins, haptics, and hands-free control.
-- **[Future Roadmap](./docs/FUTURE_ENGINEERING_ROADMAP.md)**: Vision for Pacejka modeling and GIS integration.
+## Technology Stack
 
----
+- React
+- Next.js
+- TypeScript
+- Tailwind CSS
+- Zod
+- @tanstack/react-query
+- Three.js
+- @react-three/fiber
+- @react-three/drei
+- D3.js
 
-# 🏗️ System Architecture
-## 🔷 High-Level Block Architecture
+## Project Analysis: Gear Lab Pro - High-Fidelity F1 Gear Ratio Optimization Suite
 
-```mermaid
-flowchart LR
-    A[Engine Torque Map] --> D[Optimization Engine]
-    B[Vehicle Parameters] --> D
-    C[Tyre Friction Model] --> D
+This project specification outlines an exceptionally ambitious, multi-disciplinary engineering simulation and optimization tool. Gear Lab Pro is not merely a calculator; it is a comprehensive digital twin environment designed to model, visualize, and optimize complex mechanical systems (F1 gearboxes) under realistic physical and performance constraints.
 
-    D --> E[Acceleration Simulator]
-    D --> F[Skidpad Simulator]
-    D --> G[Autocross Simulator]
+Based on the provided documentation, the system is architecturally sound, leveraging modern web technologies to deliver a high-fidelity, stateful user experience.
 
-    E --> H[Performance Aggregator]
-    F --> H
-    G --> H
+### ⚙️ Core System Functionality
 
-    H --> I[Gemini Pit Wall Advisor]
-    I --> J[Final Ratio Specification]
-```
+Gear Lab Pro integrates four major functional pillars: Simulation, Optimization, Visualization, and Interaction.
 
----
+#### 1. Performance Simulation & Modeling
 
-## 🔷 Optimization Engine Architecture
+*   **Digital Twin Fidelity:** The system aims for near-perfect simulation accuracy, modeling not just ratios, but the physical constraints of the vehicle (e.g., tire slip, engine RPM curves, chassis geometry).
+*   **Multi-Modal Output:** The integration of **Acoustic Synthesis** alongside visual data is a key differentiator, allowing users to correlate mechanical performance (e.g., gear meshing frequency) with auditory feedback.
+*   **Constraint Enforcement:** The ability to enforce complex, non-linear constraints (like the Drivability Density Constraint) ensures that optimized solutions are not just mathematically sound, but physically drivable.
 
-```mermaid
-flowchart TD
-    A[User Inputs] --> B[Solver Race Engine]
+#### 2. Optimization Engine (The Core Logic)
 
-    B --> C1[Genetic Algorithm]
-    B --> C2[Particle Swarm Optimization]
-    B --> C3[Simulated Annealing]
+*   **Hybrid Algorithm Approach:** The combination of **Genetic Algorithms (GA)** and **Particle Swarm Optimization (PSO)** is robust. GA excels at exploring vast solution spaces (finding the global optimum), while PSO is excellent for fine-tuning and converging on local optima, making the overall process highly efficient.
+*   **Goal:** The engine's primary goal is to find the optimal set of gear ratios that maximize performance metrics while adhering to strict physical and operational constraints.
 
-    C1 --> D[Candidate Ratios]
-    C2 --> D
-    C3 --> D
+#### 3. Visualization & User Experience (UX)
 
-    D --> E[Physics Validator]
-    E --> F[Traction Constraint]
-    F --> G[Drivability Density Check]
-    G --> H[Score Evaluation]
-    H --> I[Best Configuration Output]
-```
+*   **3D Environment:** The use of glTF and a dedicated 3D circuit map (e.g., Bahrain) grounds the abstract data in a tangible, real-world context. This allows engineers to visualize *where* and *when* the optimized ratios are needed.
+*   **State Management:** The implementation of **IndexedDB Session Persistence** is critical. It ensures that complex, multi-hour optimization sessions are never lost, providing a professional, reliable workflow.
+*   **Accessibility & Interaction:** Integrating **Voice Control Commands** elevates the UX, allowing hands-free interaction, which is invaluable in a high-focus engineering environment.
 
----
+### 💻 Technical Architecture & Stack
 
-## 🔷 Simulation Data Flow
+The technology stack is modern, performant, and well-suited for complex, data-intensive web applications.
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant UI
-    participant Optimizer
-    participant Physics
-    participant Events
-    participant AI
+*   **Frontend:** React/Vite/TypeScript/Tailwind CSS provides a fast, type-safe, and highly maintainable foundation.
+*   **Data Handling:** IndexedDB is the correct choice for managing large, structured, and persistent session data client-side.
+*   **Asset Pipeline:** The use of glTF for 3D assets ensures efficient loading and rendering of complex models (chassis, wheels, circuits).
+*   **Separation of Concerns:** The modular structure (e.g., `src/lib/physics`, `src/lib/optimizer`, `src/lib/audio`) is exemplary, promoting testability and allowing different teams to work on distinct components simultaneously.
 
-    User->>UI: Enter Parameters
-    UI->>Optimizer: Run Solver
-    Optimizer->>Physics: Evaluate Ratios
-    Physics->>Events: Run Event Sims
-    Events->>Optimizer: Return Times
-    Optimizer->>AI: Generate Strategy
-    AI->>UI: Display Insights
-```
+### 🚀 Summary and Next Steps
 
----
+Gear Lab Pro is a highly sophisticated, production-ready concept. The complexity of the physics, the power of the optimization algorithms, and the polish of the UI/UX combine to create a best-in-class tool.
 
-# 📊 Performance Modeling Charts
+**I can assist with the following areas:**
 
-## 🔷 Tractive Effort Distribution
+1.  **Code Implementation:** Generating boilerplate code for specific modules (e.g., the GA fitness function, the IndexedDB wrapper, or the React component structure for the 3D viewer).
+2.  **Refactoring & Optimization:** Reviewing existing code for performance bottlenecks, especially within the simulation loop or the optimization convergence phase.
+3.  **Documentation Generation:** Creating detailed API documentation, usage guides, or technical deep dives for specific components (e.g., documenting the exact parameters required for the `calculateDrivabilityDensity` function).
+4.  **Feature Expansion:** Developing mockups or pseudo-code for advanced features, such as integrating real-time telemetry data feeds or adding support for different vehicle classes (e.g., WEC Hypercars).
 
-```mermaid
-pie title Tractive Effort Contribution Across Gears
-    "Gear 1 Peak Zone" : 35
-    "Gear 2 Mid Acceleration" : 30
-    "Gear 3 High Speed Pull" : 20
-    "Traction Limited Region" : 15
-```
+**Please specify which module or function you would like to focus on next, and I will provide detailed, actionable code or documentation.
 
----
+## Setup Guide
 
-## 🔷 Event Time Weight Distribution
-
-```mermaid
-pie title Weighted Event Contribution to Optimization
-    "0-75m Acceleration" : 40
-    "Skidpad" : 25
-    "Autocross" : 35
-```
-
----
-
-## 🔷 Acceleration Setup Comparison
-
-```mermaid
-pie title Relative Performance Comparison (Lower = Better)
-    "Baseline (4.21s)" : 421
-    "Optimized (3.87s)" : 387
-    "Aggressive Final (3.79s)" : 379
-```
-
----
-
-# 🔬 Engineering Model
-
-### Tractive Force
-
-F_t = (T_e × γ_total × η) / r_w
-
-### Traction Limit
-
-F_max = μ × (W_static + ΔW_dynamic + F_downforce)
-
-### Enforced Constraint
-
-F_t ≤ F_max
-
-Wheel torque is always clamped to the traction envelope.
-
----
-
-# 🛡️ Resilience Layer — Force Heuristic Fallback
-
-If Gemini API fails due to:
-- Rate limits
-- 404
-- Network instability
-
-The system activates:
-
-### 🔹 Force Heuristic Mode
-
-It:
-- Detects traction saturation
-- Evaluates shift overlap
-- Applies gear spacing logic
-- Generates deterministic race insights
-
-This makes the system **trackside safe and competition-resilient**.
-
----
-
-# 📱 Mobile Pit Wall Interface
-
-Built using Shadcn-UI Sheet components.
-
-Features:
-- Tablet-friendly dashboard
-- Swipe-based configuration access
-- Compact telemetry panel
-- Trackside quick adjustments
-
-Engineers can operate from phones and tablets in the garage.
-
----
-
-# 🎙️ Voice Control Commands
-
-Supported Commands:
-
-- "Start Run"
-- "Reset Baseline"
-- "Mute Audio"
-- "Go Mute"
-- "Run Acceleration"
-
-Hands-free garage interaction enabled via Web Speech API.
-
----
-
-# 🏟️ 3D Circuit Map & Model Viewer
-
-The platform includes a dedicated **Circuit** tab featuring:
-
-### 🔹 F1 Bahrain International Circuit (3D)
-- Interactive low-poly 3D model of the Bahrain Grand Prix circuit
-- Embedded via Sketchfab with full orbit, zoom, and pan controls
-- Track stats overlay: length (5.412 km), 15 turns, 2 DRS zones
-- Credit: [rickythunder on Sketchfab](https://sketchfab.com/rickythunder)
-
-### � F1 Chassis Model (`.glb`)
-- Formula 1 2012 monocoque chassis loaded as a glTF Binary asset
-- Stored locally at `public/models/formula_chassis.glb`
-- Interactive 3D viewer with orbit controls
-
-### 🔹 F1 Wheel Assembly (`.glb`)
-- Formula 1 2012 tire + rim unit loaded as a glTF Binary asset
-- Stored locally at `public/models/formula_1_2012_wheel.glb`
-- Real-time 3D inspection of wheel geometry
-
-These 3D assets allow engineers to inspect the car's physical components alongside the drivetrain optimization data.
-
----
-
-# 🏎️ Auditory Digital Twin
-
-The platform features a high-fidelity **Digital Twin** of the **Aston Martin F1 AMR23**.
-
-### 🔹 3D Representation
-- Rendered using a local glTF Binary asset (`aston_martin_f1_amr23_2023.glb`)
-- Dynamic auto-rotation tied to simulation state
-- Interactive camera controls (orbit/zoom/pan)
-
-### 🔹 Acoustic Synthesis
-The engine sound is:
-- Synthesized in real time
-- Directly mapped to RPM from physics engine
-- Responsive to gear ratio changes
-
-Engineers can **hear** short vs tall gearing while observing the virtual car's dynamics.
-
----
-
-# 🧪 Drivability Density Constraint
-
-The solver penalizes:
-
-- Excessive RPM drop between gears
-- Unrealistic micro-ratio stacking
-- Physically infeasible shift spacing
-
-Ensures the solution is:
-
-✔ Fast  
-✔ Drivable  
-✔ Mechanically realistic  
-
----
-
-# 💾 IndexedDB Session Persistence
-
-All optimization runs are stored locally.
-
-- Session history retained after browser close
-- Historical comparison enabled
-- Acts as a local performance database
-
-Built using IndexedDB via SessionHistoryPanel.
-
----
-
-# 📂 Accurate Project Structure
-
-```
-gear-lab-pro/
-│
-├── public/
-│   ├── f1.png
-│   ├── models/
-│   │   ├── formula_chassis.glb
-│   │   └── formula_1_2012_wheel.glb
-│   └── robots.txt
-├── src/
-│   ├── components/
-│   │   ├── CircuitViewer.tsx
-│   │   ├── DigitalTwin.tsx
-│   │   ├── GearOptDashboard.tsx
-│   │   ├── GeneticVisualizer.tsx
-│   │   ├── QuantumVisualizer.tsx
-│   │   ├── SwarmCanvas.tsx
-│   │   ├── ThreeSwarmVisualizer.tsx
-│   │   └── ui/
-│   ├── hooks/
-│   ├── lib/
-│   │   ├── physics.ts
-│   │   ├── optimizer.ts
-│   │   ├── gemini.ts
-│   │   ├── forceHeuristic.ts
-│   │   ├── audio-engine.ts
-│   │   ├── haptic-engine.ts
-│   │   ├── session-history.ts
-│   │   ├── voice-control.ts
-│   │   └── master-dataset.ts
-│   ├── styles/
-│   └── main.tsx
-│
-├── index.html
-├── vite.config.ts
-├── tailwind.config.ts
-├── package.json
-└── README.md
-```
-
-Core logic resides inside:
-
-src/lib/
-
----
-
-# 💻 Tech Stack
-
-| Layer | Technology |
-|--------|------------|
-| Frontend | React 18 + Vite |
-| Language | TypeScript |
-| Styling | Tailwind CSS + ShadCN |
-| Optimization | GA + PSO + Annealing |
-| AI Layer | Google Gemini |
-| Fallback | Deterministic Heuristic Engine |
-| Persistence | IndexedDB |
-| Voice | Web Speech API |
-| Audio | Dynamic RPM Synth |
-| Visualization | Canvas + Responsive UI + Sketchfab 3D |
-| 3D Models | glTF Binary (.glb) — Chassis + Wheel |
-
----
-
-# 🚀 Installation
+### Frontend Setup
 
 ```bash
+
+npm install
+npm run dev     # development
+npm run build && npm start   # production
+```
+
+Open `http://127.0.0.1:5173` (or the port shown in the terminal).
+
+### Running the Application
+
+1. **Start web app** — `npm run dev` in `./`
+
+```bash
+cd .
 npm install
 npm run dev
 ```
 
-or
+## System Architecture
 
-```bash
-bun install
-bun run dev
+High-level system design, data flows, API map, and workflow pipelines derived from the repository structure.
+
+### System Architecture
+
+```mermaid
+graph TB
+    subgraph Client["Client Layer"]
+        user["User / Operator"]
+        api_client["API / CLI Client"]
+    end
+
+    subgraph Core["src/ — Application Core"]
+    end
+
+    subgraph Data["Data & Artifacts"]
+        datasets["Datasets · JSON · CSV"]
+    end
+
+    subgraph Charts["Metrics & Dashboard Charts"]
+        page_views["Page views chart"]
+        nav_sections["Navigation sections map"]
+        project_showcase["Project showcase grid"]
+        skills_timeline["Skills & experience timeline"]
+        contact_funnel["Contact conversion funnel"]
+        media_gallery["Media & assets gallery"]
+    end
+
+    user --> api_client
+    api_client --> Core
+    user -->|Web UI| dashboard_kpis
+    Core --> page_views
+    page_views --> user
 ```
 
----
+### Data Flow & Charts Pipeline
 
-# 🏁 Optimization Objective
+```mermaid
+flowchart LR
+    U["User / Event"] --> IN["Untrusted Input"]
 
-Minimize:
+    subgraph Pipeline["Processing Pipeline"]
+        p0["Input"]
+        p1["Processing"]
+        p2["Output"]
+        p0 --> p1
+        p1 --> p2
+    end
 
-Weighted(Acceleration Time)  
-+ Weighted(Skidpad Time)  
-+ Weighted(Autocross Time)
+    subgraph Metrics["Metrics & Chart Feeds"]
+        page_views["Page views chart"]
+        nav_sections["Navigation sections map"]
+        project_showcase["Project showcase grid"]
+        skills_timeline["Skills & experience timeline"]
+        contact_funnel["Contact conversion funnel"]
+        media_gallery["Media & assets gallery"]
+    end
 
-Subject to:
+    IN --> p0
+    p2 --> OUT["Authorized Output"]
+    OUT --> U
+    p2 --> page_views
+    page_views --> U
+```
 
-- Traction envelope
-- RPM limits
-- Drivability density
-- Gear spacing feasibility
-- Mechanical realism
+### Component & API Map
 
----
+```mermaid
+graph LR
+    subgraph App["src Components"]
+        main["main<br/>Main"]
+    end
+```
 
-# 🏎️ Competition Ready
+### Application Page Map
 
-✔ Physics-backed  
-✔ Offline-resilient  
-✔ Voice-enabled  
-✔ Mobile pit wall mode  
-✔ Auditory digital twin  
-✔ Persistent optimization history  
+```mermaid
+mindmap
+  root((gear-lab-pro))
+    Web UI
+      dashboard
+```
 
----
+## Screenshots & Assets
 
-# 🏁 Advanced Features
+![Screenshot 2026 02 24 034030 screenshot](Screenshot 2026-02-24 034030.png)
 
----
+![Screenshot 2026 02 24 034105 screenshot](Screenshot 2026-02-24 034105.png)
 
-## 👻 Baseline Ghosting (A/B Testing)
+![Screenshot 2026 02 24 034118 screenshot](Screenshot 2026-02-24 034118.png)
 
-Use the **"Lock Baseline"** command to freeze any configuration as a visual **Ghost Layer**.
+![Screenshot 2026 02 24 034129 screenshot](Screenshot 2026-02-24 034129.png)
 
-This enables:
+## Application Pages
 
-- Real-time A/B comparison between two ratio setups
-- Overlay visualization inside the 3D Digital Twin
-- Immediate identification of:
-  - Acceleration gains
-  - Traction improvements
-  - Shift overlap differences
-  - Time delta advantages
+Screenshots captured from the running application. Each page is listed with its function.
 
-The Ghost system allows engineers to visually prove performance improvements before committing to mechanical changes.
+### Application
 
----
+#### Home
 
-## 📳 Haptic-Tactile Feedback
+Home — application page at `/`
 
-The platform includes synchronized **Haptic Pulses** triggered by:
-
-- Gear shifts
-- Traction break events
-- Torque saturation moments
-- Launch threshold transitions
-
-This creates a multi-sensory feedback loop where engineers can:
-
-- Feel shift-shock intensity
-- Detect traction instability
-- Experience drivetrain aggressiveness
-
-The goal is to transform telemetry into **tactile engineering intuition**.
-
----
-
-## 🛡️ Fail-Safe Optimization (Quantum Visualizer Stability)
-
-The **Quantum Visualizer** integrates non-linear stabilization algorithms to maintain:
-
-- 100% rendering uptime
-- Stable visual feedback during high-entropy annealing
-- Error-free solver transitions
-
-Even during aggressive optimization sweeps, the:
-
-### 🔹 “Quantum Eye” Visualization Layer
-
-Remains:
-- Frame-stable
-- Numerically safe
-- GPU-efficient
-- Artifact-free
-
-This ensures uninterrupted engineering workflow during solver exploration.
----
-
-# 📸 Platform Screenshots
-
-## 🧭 Track Data Module
-
-![Track Data](https://raw.githubusercontent.com/Punyamittal/gear-lab-pro/main/Screenshot%202026-02-24%20034030.png)
-
----
-
-## 🏎️ Digital Twin Stream
-
-![Digital Twin](https://raw.githubusercontent.com/Punyamittal/gear-lab-pro/main/Screenshot%202026-02-24%20034105.png)
-
----
-
-## ⚛️ Quantum Strategy Engine
-
-![Quantum Engine](https://raw.githubusercontent.com/Punyamittal/gear-lab-pro/main/Screenshot%202026-02-24%20034118.png)
-
----
-
-## 🌀 Swarm Optimization Lab
-
-![Swarm Lab](https://raw.githubusercontent.com/Punyamittal/gear-lab-pro/main/Screenshot%202026-02-24%20034129.png)
-
----
-
-## 🧬 DNA Evolutionary Lab
-
-![DNA Lab](https://raw.githubusercontent.com/Punyamittal/gear-lab-pro/main/Screenshot%202026-02-24%20034137.png)
-
----
-
-## 🧠 Pit Wall AI Brief
-
-![Pit Wall AI](https://raw.githubusercontent.com/Punyamittal/gear-lab-pro/main/Screenshot%202026-02-24%20034153.png)
-
----
-
-## 📊 Telemetry & Session History
-
-![Telemetry](https://raw.githubusercontent.com/Punyamittal/gear-lab-pro/main/Screenshot%202026-02-24%20034201.png)
-
----
-
-# 📜 License
-
-MIT License
-
----
-
-# 🏁 Built for Formula Student Teams
-
-Mathematically Provable.  
-Competition Resilient.  
-Track Ready.
+![Home](docs/readme-agent/pages/dashboard.png)
