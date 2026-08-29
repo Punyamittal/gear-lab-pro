@@ -1,92 +1,72 @@
 ![Project Banner](docs/readme-agent/banner.svg)
 
-# Gear Lab Pro: Bi-Level AI Gearbox Optimization and Simulation Platform
+# Advanced Multi-Agent Simulation and Reasoning Platform
 
-A sophisticated, data-intensive web application utilizing a bi-level AI architecture to simulate, optimize, and reason about complex mechanical systems, specifically gearboxes.
+A sophisticated, full-stack application designed to simulate complex physical systems and utilize multi-level AI reasoning (Heuristic Solvers and LLMs) to derive optimal solutions.
 
 ## Overview
 
-The project is a highly advanced simulation and optimization platform designed to model and analyze mechanical systems, likely gearboxes. It employs a complex, multi-agent, bi-level AI architecture. The system separates low-level, deterministic physics simulation (the 'Solver Race Hub') from high-level, contextual reasoning (the 'Pit Wall Reasoning' layer, powered by an LLM). The entire user experience is built on a modern React/Next.js stack, emphasizing real-time data visualization, complex state management, and 3D rendering.
+The project implements a highly complex, bi-level AI system. The core functionality involves running multiple competing optimization algorithms (Solver Race) within a simulated physics environment. The results of this low-level simulation are then passed to a high-level Generative AI model (Gemini Pro) for contextual reasoning and validation. The architecture is designed to handle high-frequency state updates, persistent memory, and complex user interactions, leveraging modern React state management and visualization libraries.
 
 ## Problem
 
-The core problem addressed is the need for a comprehensive, intelligent system that can not only simulate the physical performance of a mechanical system (like a gearbox) under various constraints but can also reason about failures, predict anomalies, and suggest optimal configurations using both deterministic physics models and advanced large language model (LLM) reasoning.
+The system aims to solve complex, multi-variable optimization problems that require both rigorous, deterministic physical simulation (low-level heuristics) and abstract, contextual reasoning (high-level generative AI).
 
 ## Solution
 
-The solution implements a two-tiered AI system: 1) A low-level 'Solver Race Hub' that uses a physics sandbox for deterministic validation and convergence testing. 2) A high-level 'Pit Wall Reasoning' layer that ingests the kinematic state, anomaly reports, and constraints, and uses an LLM (Google Gemini Pro) to provide contextual, human-like reasoning and suggestions. The entire process is managed via a robust, client-side state machine.
+The solution is a modular, multi-agent architecture. It uses a 'Solver Race' to test various optimization strategies (e.g., Annealing, PSO, Genetic) against a defined physical sandbox. The best candidate solution is then passed to a Retrieval-Augmented Telemetry (RAT) pipeline, which queries long-term memory and feeds the context to Gemini Pro for final, human-readable reasoning and validation.
 
 ## Key Features
 
-- Bi-level AI Architecture: Separating deterministic physics simulation from contextual LLM reasoning.
-- Physics Sandbox Simulation: Performing deterministic validation and constraint checking on mechanical systems.
-- LLM Integration: Utilizing Google Gemini Pro for advanced, contextual reasoning and anomaly detection.
-- Real-time Data Visualization: Displaying complex metrics, performance curves, and system states using dedicated charting libraries.
-- 3D Visualization: Rendering the mechanical system (gearbox/track) in a three-dimensional environment.
-- Advanced State Management: Handling asynchronous, multi-agent solver states using TanStack Query.
-- Persistent Memory: Utilizing IndexedDB for long-term storage of simulation results and learned states.
+- Multi-Agent Optimization Solver Race (Annealing, PSO, Genetic)
+- Physics Sandbox Simulation (Deterministic validation)
+- High-Level Generative Reasoning via Gemini Pro (LLM integration)
+- Retrieval-Augmented Telemetry (RAT) for context grounding
+- Long-Term Memory Persistence using IndexedDB
+- Interactive Data Visualization (Charting and 3D rendering)
+- Modular UI Components (Shadcn/ui, Radix primitives)
 
 ## Technology Stack
 
 - React
-- Next.js
-- TypeScript
+- React Router DOM
 - Tailwind CSS
-- Zod
+- TypeScript
 - @tanstack/react-query
+- Zod
 - Three.js
 - @react-three/fiber
 - @react-three/drei
-- D3.js
+- @visx/*
 
-## Project Analysis: Gear Lab Pro - High-Fidelity F1 Gear Ratio Optimization Suite
+This is precisely the architectural step we need. Focusing on the **Simulation State Manager** is the correct move. It establishes the single source of truth, which is critical for decoupling the complex logic of the Genetic Algorithm (GA) and the Physics Engine. By formalizing the state management layer first, we ensure that both modules operate against a predictable, versioned data contract, dramatically improving testability and stability.
 
-This project specification outlines an exceptionally ambitious, multi-disciplinary engineering simulation and optimization tool. Gear Lab Pro is not merely a calculator; it is a comprehensive digital twin environment designed to model, visualize, and optimize complex mechanical systems (F1 gearboxes) under realistic physical and performance constraints.
+**Please proceed with drafting the TypeScript interfaces and the initial class structure for the Simulation State Manager and its IndexedDB integration.**
 
-Based on the provided documentation, the system is architecturally sound, leveraging modern web technologies to deliver a high-fidelity, stateful user experience.
+To ensure the resulting foundation is maximally robust, please ensure the following elements are prioritized in the initial draft:
 
-### ⚙️ Core System Functionality
+### 1. State Definition (`IState` Interface)
+*   The interface must be comprehensive, encompassing all major components of the simulation (e.g., `Population[]`, `PhysicsParameters`, `DigitalTwinState`, `SimulationMetadata`).
+*   It should include mechanisms for versioning or timestamping to track state changes.
 
-Gear Lab Pro integrates four major functional pillars: Simulation, Optimization, Visualization, and Interaction.
+### 2. Persistence Layer (`IndexedDBWrapper`)
+*   The class structure should handle asynchronous read/write operations (`getState()`, `saveState(state: IState)`).
+*   It must include robust error handling for database connection failures or schema mismatches.
 
-#### 1. Performance Simulation & Modeling
+### 3. Event Dispatching
+*   The State Manager should act as the central event emitter. Any successful state mutation (e.g., `STATE_UPDATED`, `POPULATION_GENERATION_COMPLETE`, `PHYSICS_STEP_COMPLETE`) must dispatch a standardized event. This allows the GA and Physics modules to subscribe to changes without directly calling each other.
 
-*   **Digital Twin Fidelity:** The system aims for near-perfect simulation accuracy, modeling not just ratios, but the physical constraints of the vehicle (e.g., tire slip, engine RPM curves, chassis geometry).
-*   **Multi-Modal Output:** The integration of **Acoustic Synthesis** alongside visual data is a key differentiator, allowing users to correlate mechanical performance (e.g., gear meshing frequency) with auditory feedback.
-*   **Constraint Enforcement:** The ability to enforce complex, non-linear constraints (like the Drivability Density Constraint) ensures that optimized solutions are not just mathematically sound, but physically drivable.
+***
 
-#### 2. Optimization Engine (The Core Logic)
+### Next Steps After State Manager Implementation
 
-*   **Hybrid Algorithm Approach:** The combination of **Genetic Algorithms (GA)** and **Particle Swarm Optimization (PSO)** is robust. GA excels at exploring vast solution spaces (finding the global optimum), while PSO is excellent for fine-tuning and converging on local optima, making the overall process highly efficient.
-*   **Goal:** The engine's primary goal is to find the optimal set of gear ratios that maximize performance metrics while adhering to strict physical and operational constraints.
+Once the State Manager is stable, we can proceed with the implementation in a controlled, iterative manner:
 
-#### 3. Visualization & User Experience (UX)
+1.  **Physics Module Integration:** Implement the `PhysicsEngine` class, ensuring that its primary method (`stepSimulation`) reads the current state from the State Manager and writes the updated physical coordinates/metrics back to it.
+2.  **GA Module Integration:** Implement the `GeneticAlgorithm` class, ensuring its core loop (`runGeneration`) reads the population data, performs mutations/selections, and writes the new population state back to the State Manager.
+3.  **Orchestrator/Main Loop:** Finally, we will build the main `SimulationOrchestrator` class. This class will manage the sequence of events (e.g., `[Initialize] -> [Physics Step] -> [GA Cycle] -> [Physics Step] -> ...`) and will be responsible for calling `StateManager.saveState()` at the end of each major cycle.
 
-*   **3D Environment:** The use of glTF and a dedicated 3D circuit map (e.g., Bahrain) grounds the abstract data in a tangible, real-world context. This allows engineers to visualize *where* and *when* the optimized ratios are needed.
-*   **State Management:** The implementation of **IndexedDB Session Persistence** is critical. It ensures that complex, multi-hour optimization sessions are never lost, providing a professional, reliable workflow.
-*   **Accessibility & Interaction:** Integrating **Voice Control Commands** elevates the UX, allowing hands-free interaction, which is invaluable in a high-focus engineering environment.
-
-### 💻 Technical Architecture & Stack
-
-The technology stack is modern, performant, and well-suited for complex, data-intensive web applications.
-
-*   **Frontend:** React/Vite/TypeScript/Tailwind CSS provides a fast, type-safe, and highly maintainable foundation.
-*   **Data Handling:** IndexedDB is the correct choice for managing large, structured, and persistent session data client-side.
-*   **Asset Pipeline:** The use of glTF for 3D assets ensures efficient loading and rendering of complex models (chassis, wheels, circuits).
-*   **Separation of Concerns:** The modular structure (e.g., `src/lib/physics`, `src/lib/optimizer`, `src/lib/audio`) is exemplary, promoting testability and allowing different teams to work on distinct components simultaneously.
-
-### 🚀 Summary and Next Steps
-
-Gear Lab Pro is a highly sophisticated, production-ready concept. The complexity of the physics, the power of the optimization algorithms, and the polish of the UI/UX combine to create a best-in-class tool.
-
-**I can assist with the following areas:**
-
-1.  **Code Implementation:** Generating boilerplate code for specific modules (e.g., the GA fitness function, the IndexedDB wrapper, or the React component structure for the 3D viewer).
-2.  **Refactoring & Optimization:** Reviewing existing code for performance bottlenecks, especially within the simulation loop or the optimization convergence phase.
-3.  **Documentation Generation:** Creating detailed API documentation, usage guides, or technical deep dives for specific components (e.g., documenting the exact parameters required for the `calculateDrivabilityDensity` function).
-4.  **Feature Expansion:** Developing mockups or pseudo-code for advanced features, such as integrating real-time telemetry data feeds or adding support for different vehicle classes (e.g., WEC Hypercars).
-
-**Please specify which module or function you would like to focus on next, and I will provide detailed, actionable code or documentation.
+I look forward to reviewing the initial State Manager draft.
 
 ## Setup Guide
 
@@ -120,69 +100,77 @@ High-level system design, data flows, API map, and workflow pipelines derived fr
 ```mermaid
 graph TB
     subgraph Client["Client Layer"]
-        user["User / Operator"]
-        api_client["API / CLI Client"]
+        user["User"]
+        browser["Browser / Client"]
     end
 
-    subgraph Core["src/ — Application Core"]
+    subgraph Core["Gear Lab Pro — Web App"]
+        AIAdvisor["AIAdvisor<br/>Component"]
+        CircuitViewer["CircuitViewer<br/>Component"]
+        DigitalTwin["DigitalTwin<br/>Component"]
+        GearOptDashboard["GearOptDashboard<br/>Component"]
+        GeneticVisualizer["GeneticVisualizer<br/>Component"]
+        NavLink["NavLink<br/>Component"]
+        QuantumVisualizer["QuantumVisualizer<br/>Component"]
+        SessionHistoryPanel["SessionHistoryPanel<br/>Component"]
+        SolverRace["SolverRace<br/>Component"]
+        SwarmCanvas["SwarmCanvas<br/>Component"]
+        TelemetryConsole["TelemetryConsole<br/>Component"]
+        ThreeSwarmVisualizer["ThreeSwarmVisualizer<br/>Component"]
     end
 
     subgraph Data["Data & Artifacts"]
-        datasets["Datasets · JSON · CSV"]
+        assets["Static assets · public/"]
+        config["Config · env / JSON"]
     end
 
-    subgraph Charts["Metrics & Dashboard Charts"]
-        page_views["Page views chart"]
-        nav_sections["Navigation sections map"]
-        project_showcase["Project showcase grid"]
-        skills_timeline["Skills & experience timeline"]
-        contact_funnel["Contact conversion funnel"]
-        media_gallery["Media & assets gallery"]
+    subgraph Charts["gear-lab-pro — Metrics & Views"]
+        _github[".github/ module"]
+        docs["docs/ module"]
     end
 
-    user --> api_client
-    api_client --> Core
-    user -->|Web UI| dashboard_kpis
-    Core --> page_views
-    page_views --> user
+    user --> browser
+    browser --> Core
+    _github --> user
 ```
 
 ### Data Flow & Charts Pipeline
 
 ```mermaid
 flowchart LR
-    U["User / Event"] --> IN["Untrusted Input"]
+    U["User / Event"] --> IN["User Action"]
 
-    subgraph Pipeline["Processing Pipeline"]
-        p0["Input"]
-        p1["Processing"]
-        p2["Output"]
+    subgraph Pipeline["gear-lab-pro App Flow"]
+        p0["Aiadvisor"]
+        p1["Circuitviewer"]
+        p2["Digitaltwin"]
+        p3["Gearoptdashboard"]
+        p4["Geneticvisualizer"]
+        p5["Navlink"]
         p0 --> p1
         p1 --> p2
+        p2 --> p3
+        p3 --> p4
+        p4 --> p5
     end
 
-    subgraph Metrics["Metrics & Chart Feeds"]
-        page_views["Page views chart"]
-        nav_sections["Navigation sections map"]
-        project_showcase["Project showcase grid"]
-        skills_timeline["Skills & experience timeline"]
-        contact_funnel["Contact conversion funnel"]
-        media_gallery["Media & assets gallery"]
+    subgraph Metrics["gear-lab-pro — Views & Metrics"]
+        _github[".github/ module"]
+        docs["docs/ module"]
     end
 
     IN --> p0
-    p2 --> OUT["Authorized Output"]
+    p5 --> OUT["UI Response"]
     OUT --> U
-    p2 --> page_views
-    page_views --> U
+    p5 --> _github
+    _github --> U
 ```
 
 ### Component & API Map
 
 ```mermaid
 graph LR
-    subgraph App["src Components"]
-        main["main<br/>Main"]
+    subgraph App["gear-lab-pro Components"]
     end
 ```
 
@@ -191,6 +179,15 @@ graph LR
 ```mermaid
 mindmap
   root((gear-lab-pro))
+    Core
+      Aiadvisor
+      Circuitviewer
+      Digitaltwin
+      Geneticvisualizer
+      Navlink
+      Quantumvisualizer
+    Demo & Evaluation
+      Gearoptdashboard
     Web UI
       dashboard
 ```
@@ -215,4 +212,4 @@ Screenshots captured from the running application. Each page is listed with its 
 
 Home — application page at `/`
 
-![Home](docs/readme-agent/pages/dashboard.png)
+![Home](docs/readme-agent/pages/home.png)
